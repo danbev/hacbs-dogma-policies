@@ -1,0 +1,12 @@
+pattern at-least-one-task = {
+  kind: "Pipeline",
+  spec: {
+    tasks: list::any<{
+        taskRef: {
+          bundle: string,
+          kind: string,
+          name: string
+        }
+    }>,
+  }
+}

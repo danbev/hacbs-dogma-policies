@@ -1,0 +1,8 @@
+[package]
+name = "hacbs-dogma-policies"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+seedwing-policy-engine = { path = "../seedwing-policy/seedwing-policy-engine" }
+tokio = "*"
