@@ -175,7 +175,59 @@ successes:
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
 ```
+
+Looking at the rest of the rules in required_tasks.rego I can't see anything
+that sticks out what would not be possible to write in Dogma.
+
+
+#### [task_bundle.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/task_bundle.rego)
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.pipeline.task_bundle
+policy/pipeline/task_bundle_test.rego:
+data.policy.pipeline.task_bundle.test_bundle_not_exists: PASS (2.046607ms)
+data.policy.pipeline.task_bundle.test_bundle_not_exists_empty_string: PASS (1.851684ms)
+data.policy.pipeline.task_bundle.test_bundle_unpinned: PASS (1.744623ms)
+data.policy.pipeline.task_bundle.test_bundle_reference_valid: PASS (2.993972ms)
+data.policy.pipeline.task_bundle.test_acceptable_bundle_up_to_date: PASS (10.115315ms)
+data.policy.pipeline.task_bundle.test_acceptable_bundle_out_of_date_past: PASS (10.998381ms)
+data.policy.pipeline.task_bundle.test_acceptable_bundle_expired: PASS (9.678123ms)
+data.policy.pipeline.task_bundle.test_missing_required_data: PASS (1.79935ms)
+--------------------------------------------------------------------------------
+PASS: 8/8
+```
+
 __wip__
+
+
+## Missing features
+This section list features that exist in HACBS Policy Rules/Rego but are
+currently not available in seedwing-policy-engine/Dogma (as far as I'm aware)
+
+### HACBS rules custom results
+The rules in HACBS return a result which contains information about the
+success/failure. For example:
+```console
+{
+  "code": "required_tasks.missing_required_task",
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Required task \"buildah\" is missing",
+  "term": "buildah"
+}
+```
+I'm not sure this is possible at the moment with seedwing-policy-engine and
+Dogma. The error messages are specified as metadata on the rules:
+```
+# METADATA
+# title: Missing required task
+# description: |-
+#   This policy enforces that the required set of tasks are included
+#   in the Pipeline definition.
+# custom:
+#   short_name: missing_required_task
+#   failure_msg: Required task %q is missing
+deny contains result if {
+```
+
 
 [policies]: https://github.com/hacbs-contract/ec-policies/
 [policy]: https://github.com/hacbs-contract/ec-policies/tree/main/policy
