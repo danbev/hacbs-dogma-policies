@@ -180,6 +180,113 @@ successes:
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
 ```
 
+One thing to not is how the Rules are written in Rego, take for example the
+rule 
+```
+# METADATA
+# title: Missing required task
+# description: |-
+#   This policy enforces that the required set of tasks are included
+#   in the Pipeline definition.
+# custom:
+#   short_name: missing_required_task
+#   failure_msg: Required task %q is missing
+deny contains result if {
+	count(tkn.tasks(input)) > 0
+
+	# Get missing tasks by comparing with the default required task list
+	some required_task in _missing_tasks(current_required_tasks)
+
+	# Don't report an error if a task is required now, but not in the future
+	required_task in latest_required_tasks
+	result := lib.result_helper_with_term(rego.metadata.chain(), [required_task], required_task)
+}
+```
+This rule was tested above using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.pipeline.required_tasks.test_required_tasks
+```
+If we take a look at the test for this it looks like this:
+```
+test_required_tasks_not_met if {
+	missing_tasks := {"buildah"}
+	pipeline := _pipeline_with_tasks_and_label(_expected_required_tasks - missing_tasks, [], [])
+
+	expected := _missing_tasks_violation(missing_tasks)
+	lib.assert_equal(expected, deny) with data["pipeline-required-tasks"] as _time_based_pipeline_required_tasks
+		with input as pipeline
+}
+```
+By just looking at the rule above I was not able to tell which rule this tests
+was executing. I actually had to put a print statement into the rule to verify
+which one rule it was running. But if I had looked closer the rule is `deny` so
+all the rules with the name `deny` will be evaulated. This might just be my
+own lack of knowledge of Rego but it would have been nice to named the rules
+after what they are checking for, and then have a composite rule that checked
+all (not sure if that is possible though). But this is something to keep in mind
+when reading Rego.
+
+Also notice the comment that start with `METADATA` which are actually
+[rego annotations] and are in yaml format. In the test above when is returned
+is the following:
+```console
+{
+  "code": "required_tasks.missing_required_task",
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Required task \"buildah\" is missing", "term": "buildah"}
+```
+The metadata can then be accessed in rules using builtin-functions like
+`rego.metadata.chain()`. For example, printing out the output from that function
+for our above test would display:
+```console
+[{
+  "annotations": {
+    "custom": {
+      "failure_msg": "Required task %q is missing",
+      "short_name": "missing_required_task"
+    },
+    "description": "This policy enforces that the required set of tasks are included\nin the Pipeline definition.",
+    "scope": "rule",
+    "title": "Missing required task"
+  },
+  "path": ["policy", "pipeline", "required_tasks", "deny"]
+},{
+  "annotations": {
+    "description": "HACBS expects that certain Tekton tasks are executed during image builds.\nThis package includes policy rules to confirm that the pipeline definition\nincludes the required Tekton tasks.",
+    "scope": "package"
+  },
+  "path": ["policy", "pipeline", "required_tasks"]}
+```
+This is passed to the function `lib.result_helper_with_term` in the above rule:
+```
+	result := lib.result_helper_with_term(rego.metadata.chain(), [required_task], required_task)
+```
+And that will delegate to `result_helper` gt
+```
+result_helper_with_term(chain, failure_sprintf_params, term) := result {
+	result := object.union(result_helper(chain, failure_sprintf_params), {"term": term})
+}
+
+result_helper(chain, failure_sprintf_params) := result {
+	with_collections := {"collections": _rule_annotations(chain).custom.collections}
+	result := object.union(_basic_result(chain, failure_sprintf_params), with_collections)
+} else := result {
+	result := _basic_result(chain, failure_sprintf_params)
+}
+```
+Notice that `result_helper` contains an `else` statement and will stop when
+the input does not match the `with_collections` rule, and then proceed to
+execute the else block.
+
+
+
+The metadata can also be displayed using the opa inspect command:
+```console
+$ opa inspect -a policy/pipeline
+```
+
+
+
 Looking at the rest of the rules in required_tasks.rego I can't see anything
 that sticks out what would not be possible to write in Dogma.
 
@@ -315,3 +422,4 @@ deny contains result if {
 [policies]: https://github.com/hacbs-contract/ec-policies/
 [policy]: https://github.com/hacbs-contract/ec-policies/tree/main/policy
 [rego-builtin-functions]: https://www.openpolicyagent.org/docs/latest/policy-reference/#built-in-functions
+[rego annotations]: https://www.openpolicyagent.org/docs/latest/annotations
