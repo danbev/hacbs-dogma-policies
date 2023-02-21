@@ -152,6 +152,11 @@ handle:
 
 So this should verify that the input json document contains at least on task
 element in `tasks` array.
+
+[required_tasks.rs](./tests/pipeline/required_tasks.rs) contains a similar test
+written in Rust and tests the
+[required_tasks.dog](policy/pipeline/required_tasks.dog) Dogma policy rules
+file:
 ```console
 $ cargo t -- --show-output at_least_one_task
    Compiling hacbs-dogma-policies v0.1.0 (/home/danielbevenius/work/security/seedwing/hacbs-dogma-policies)
