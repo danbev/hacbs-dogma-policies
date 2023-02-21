@@ -27,15 +27,128 @@ This rule file contains polices related to Tekton pipelines.
 
 The first policy rule is tested by `tasks.test_required_tasks_met`
 ```console
-$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.pipeline.required_tasks.test_required_tasks_met
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.pipeline.required_tasks.test_required_tasks
 policy/pipeline/required_tasks_test.rego:
-data.policy.pipeline.required_tasks.test_required_tasks_met: PASS (9.46248ms)
+data.policy.pipeline.required_tasks.test_required_tasks_met: PASS (10.451165ms)
+data.policy.pipeline.required_tasks.test_required_tasks_not_met: PASS (7.362276ms)
 --------------------------------------------------------------------------------
-PASS: 1/1
+PASS: 2/2
 ```
-Keep in mind tests don't call a specific rule to be evaulated, instead all the
-rules in the policy file, policy/pipeline/required_tasks.rego above, will be
-evaluated.
+So those two test should verify that the input json document contains at least
+on task element in `tasks` array.
+
+As a reference the following is an example of the input JSON that these tests
+handle:
+```json
+{
+  "kind": "Pipeline",
+  "metadata": {
+    "labels": {
+      "pipelines.openshift.io/runtime": "fbc"
+    },
+    "name": "fbc"
+  },
+  "spec": {
+    "finally": [],
+    "tasks": [
+      {
+        "taskRef": {
+          "bundle": "registry.img/spam@sha256:4e388ab32b10dc8dbc7e28144f552830adc74787c1e2c0824032078a79f227fb",
+          "kind": "Task",
+          "name": "buildah"
+        }
+      },
+      {
+        "taskRef": {
+          "bundle": "registry.img/spam@sha256:4e388ab32b10dc8dbc7e28144f552830adc74787c1e2c0824032078a79f227fb",
+          "kind": "Task",
+          "name": "git-clone"
+        }
+      },
+      {
+        "params": [
+          {
+            "name": "POLICY_NAMESPACE",
+            "value": "optional_checks"
+          }
+        ],
+        "taskRef": {
+          "bundle": "registry.img/spam@sha256:4e388ab32b10dc8dbc7e28144f552830adc74787c1e2c0824032078a79f227fb",
+          "kind": "Task",
+          "name": "sanity-label-check"
+        }
+      },
+      {
+        "params": [
+          {
+            "name": "POLICY_NAMESPACE",
+            "value": "required_checks"
+          }
+        ],
+        "taskRef": {
+          "bundle": "registry.img/spam@sha256:4e388ab32b10dc8dbc7e28144f552830adc74787c1e2c0824032078a79f227fb",
+          "kind": "Task",
+          "name": "sanity-label-check"
+        }
+      }
+    ]
+  }
+}
+{
+  "kind": "Pipeline",
+  "metadata": {
+    "labels": {
+      "pipelines.openshift.io/runtime": "fbc"
+    },
+    "name": "fbc"
+  },
+  "spec": {
+    "finally": [
+      {
+        "taskRef": {
+          "bundle": "registry.img/spam@sha256:4e388ab32b10dc8dbc7e28144f552830adc74787c1e2c0824032078a79f227fb",
+          "kind": "Task",
+          "name": "buildah"
+        }
+      },
+      {
+        "taskRef": {
+          "bundle": "registry.img/spam@sha256:4e388ab32b10dc8dbc7e28144f552830adc74787c1e2c0824032078a79f227fb",
+          "kind": "Task",
+          "name": "git-clone"
+        }
+      },
+      {
+        "params": [
+          {
+            "name": "POLICY_NAMESPACE",
+            "value": "optional_checks"
+          }
+        ],
+        "taskRef": {
+          "bundle": "registry.img/spam@sha256:4e388ab32b10dc8dbc7e28144f552830adc74787c1e2c0824032078a79f227fb",
+          "kind": "Task",
+          "name": "sanity-label-check"
+        }
+      },
+      {
+        "params": [
+          {
+            "name": "POLICY_NAMESPACE",
+            "value": "required_checks"
+          }
+        ],
+        "taskRef": {
+          "bundle": "registry.img/spam@sha256:4e388ab32b10dc8dbc7e28144f552830adc74787c1e2c0824032078a79f227fb",
+          "kind": "Task",
+          "name": "sanity-label-check"
+        }
+      }
+    ],
+    "tasks": []
+  }
+}
+```
 
 So this should verify that the input json document contains at least on task
 element in `tasks` array.
