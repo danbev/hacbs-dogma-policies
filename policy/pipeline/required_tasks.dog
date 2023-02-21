@@ -1,3 +1,5 @@
+pattern acceptable_tekton_bundles = *data::from<"acceptable_tekton_bundles.yml">
+
 pattern at-least-one-task = {
   kind: "Pipeline",
   spec: {
