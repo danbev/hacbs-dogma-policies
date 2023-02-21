@@ -180,8 +180,8 @@ successes:
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
 ```
 
-One thing to not is how the Rules are written in Rego, take for example the
-rule 
+One thing to note is how the rules are written in Rego, take for example the
+following rule:
 ```
 # METADATA
 # title: Missing required task
@@ -227,13 +227,14 @@ all (not sure if that is possible though). But this is something to keep in mind
 when reading Rego.
 
 Also notice the comment that start with `METADATA` which are actually
-[rego annotations] and are in yaml format. In the test above when is returned
+[rego annotations] and are in yaml format. In the test above what is returned
 is the following:
 ```console
 {
   "code": "required_tasks.missing_required_task",
   "effective_on": "2022-01-01T00:00:00Z",
-  "msg": "Required task \"buildah\" is missing", "term": "buildah"}
+  "msg": "Required task \"buildah\" is missing", "term": "buildah"
+}
 ```
 The metadata can then be accessed in rules using builtin-functions like
 `rego.metadata.chain()`. For example, printing out the output from that function
