@@ -261,7 +261,7 @@ This is passed to the function `lib.result_helper_with_term` in the above rule:
 ```
 	result := lib.result_helper_with_term(rego.metadata.chain(), [required_task], required_task)
 ```
-And that will delegate to `result_helper` gt
+And that will delegate to `result_helper`:
 ```
 result_helper_with_term(chain, failure_sprintf_params, term) := result {
 	result := object.union(result_helper(chain, failure_sprintf_params), {"term": term})
