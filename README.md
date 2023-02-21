@@ -13,7 +13,7 @@ directories:
 * release
 * lib
 
-### pipeline
+### pipeline package
 
 #### [basic.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/basic.rego)
 Looking at the comment in this file it does not seem to be a policy rule that
@@ -39,6 +39,8 @@ on task element in `tasks` array.
 
 As a reference the following is an example of the input JSON that these tests
 handle:
+<details><summary>pipline json</summary>
+
 ```json
 {
   "kind": "Pipeline",
@@ -150,6 +152,8 @@ handle:
 }
 ```
 
+</details>
+
 So this should verify that the input json document contains at least on task
 element in `tasks` array.
 
@@ -195,6 +199,85 @@ data.policy.pipeline.task_bundle.test_missing_required_data: PASS (1.79935ms)
 --------------------------------------------------------------------------------
 PASS: 8/8
 ```
+These rules operate/process/use the `tasks` array of the Tekton pipeline json:
+```json
+{
+  "kind": "Pipeline",
+  "metadata": {
+    "labels": {
+      "pipelines.openshift.io/runtime": "fbc"
+    },
+    "name": "fbc"
+  },
+  "spec": {
+    "finally": [],
+    "tasks": [
+      {
+        "taskRef": {
+          "bundle": "registry.img/spam@sha256:4e388ab32b10dc8dbc7e28144f552830adc74787c1e2c0824032078a79f227fb",
+          "kind": "Task",
+          "name": "buildah"
+        }
+      }],
+      ...
+```
+There does not look like there are any complicated rules in this file that
+could not be written in Dogma.
+
+Those are all the rules in `policy/pipeline/`.
+
+### runtime package
+
+
+#### [attestation_task_bundle.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/attestation_task_bundle.rego)
+
+These test can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.attestation_task_bundle
+policy/release/attestation_task_bundle_test.rego:
+data.policy.release.attestation_task_bundle.test_bundle_not_exists: PASS (4.357773ms)
+data.policy.release.attestation_task_bundle.test_bundle_not_exists_empty_string: PASS (2.534404ms)
+data.policy.release.attestation_task_bundle.test_bundle_unpinned: PASS (2.209814ms)
+data.policy.release.attestation_task_bundle.test_bundle_reference_valid: PASS (3.073418ms)
+data.policy.release.attestation_task_bundle.test_acceptable_bundle_up_to_date: PASS (10.179267ms)
+data.policy.release.attestation_task_bundle.test_acceptable_bundle_out_of_date_past: PASS (11.883647ms)
+data.policy.release.attestation_task_bundle.test_acceptable_bundle_expired: PASS (10.735255ms)
+data.policy.release.attestation_task_bundle.test_missing_required_data: PASS (926.592µs)
+--------------------------------------------------------------------------------
+PASS: 8/8
+```
+
+```
+# METADATA                                                                         
+# title: Task bundle was not used or is not defined                                
+# description: |-                                                                  
+#   Check for existence of a task bundle. Enforcing this rule will                 
+#   fail the contract if the task is not called from a bundle.                     
+# custom:                                                                          
+#   short_name: disallowed_task_reference                                          
+#   failure_msg: Pipeline task '%s' does not contain a bundle reference            
+#   collections:                                                                   
+#   - minimal                                                                      
+#                                                                                  
+deny[result] {                                                                     
+      name := bundles.disallowed_task_reference(lib.tasks_from_pipelinerun)[_].name
+      result := lib.result_helper(rego.metadata.chain(), [name])                 
+} 
+```
+Notice the usage of `[_]` which will be turned into a `for` loop I think,
+```
+  result = []                                                             
+  for name in bundles.disallowed_task_reference(lib.tasks_from_pipelinerun:
+    result.append(lib.result_helper(rego.metadata.chain(), [name]))
+```
+And also notice that this returns `[result]` so there can be more than one.
+Also notice that the `bundles.disallowed_task_reference` is a rule in
+policy/lib/bundles.rego`. 
+```
+      name := bundles.disallowed_task_reference(lib.tasks_from_pipelinerun)[_].name
+```
+
+
 
 __wip__
 
