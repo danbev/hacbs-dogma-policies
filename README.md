@@ -3,7 +3,8 @@ This repository will take a look at the Hybrid Application Cloud Build Services
 (HACBS) [policies], and look at their usages of the Rego rule language usage.
 
 The goal is to make sure that the policy rules could be written in the Dogma
-language, and if not open issues for functionality that may be missing.
+language, and if not open issues for functionality that may be missing. The
+intention is not to re-write/translate all the HACBS Rego rules.
 
 ## HACBS Policy Rules
 The HACBS policy rules can be found in [policy] which contains the following
