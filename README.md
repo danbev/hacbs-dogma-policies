@@ -227,6 +227,8 @@ all (not sure if that is possible though). And this can also make test brittle
 as changing on of `deny` rules in the .rego can cause failures in other tests
 cases. This is something to keep in mind when reading Rego.
 
+
+<a id="metadata-anchor"></a>
 Also notice the comment that start with `METADATA` which are actually
 [rego annotations] and are in yaml format. In the test above what is returned
 is the following:
@@ -419,9 +421,10 @@ Dogma. The error messages are specified as metadata on the rules:
 #   failure_msg: Required task %q is missing
 deny contains result if {
 ```
-
+This [metadata] was discussed earlier in this document.
 
 [policies]: https://github.com/hacbs-contract/ec-policies/
 [policy]: https://github.com/hacbs-contract/ec-policies/tree/main/policy
 [rego-builtin-functions]: https://www.openpolicyagent.org/docs/latest/policy-reference/#built-in-functions
 [rego annotations]: https://www.openpolicyagent.org/docs/latest/annotations
+[metadata]: #metadata-anchor
