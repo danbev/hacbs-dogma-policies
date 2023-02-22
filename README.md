@@ -516,6 +516,23 @@ PASS: 3/3
 Looking at the rules in this file I don't see anything that stands out that we
 have not already noted previously in this document.
 
+#### [base_image_registries.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/base_image_registries.rego)
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.base_image_registries
+policy/release/base_image_registries_test.rego:
+data.policy.release.base_image_registries.test_acceptable_base_images: PASS (1.848358ms)
+data.policy.release.base_image_registries.test_empty_base_images: PASS (1.197682ms)
+data.policy.release.base_image_registries.test_unacceptable_base_images: PASS (3.118485ms)
+data.policy.release.base_image_registries.test_missing_result: PASS (2.318952ms)
+data.policy.release.base_image_registries.test_missing_rule_data: PASS (1.005555ms)
+--------------------------------------------------------------------------------
+PASS: 5/5
+```
+
+Looking at the rules in this file I don't see anything that stands out that we
+have not already noted previously in this document.
+
 __wip__
 
 
