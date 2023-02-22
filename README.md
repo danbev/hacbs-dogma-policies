@@ -916,6 +916,25 @@ Apart from the usages of the above OPA builtin functions I could not find
 anything that stands out that we have not already noted previously in this
 document.
 
+
+#### [refs.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.refs
+policy/lib/refs_test.rego:
+data.lib.refs.test_bundle_in_pipelinerun: PASS (610.768µs)
+data.lib.refs.test_bundle_resolver_in_pipelinerun: PASS (995.654µs)
+data.lib.refs.test_bundle_in_pipeline: PASS (445.914µs)
+data.lib.refs.test_bundle_resolver_in_pipeline: PASS (836.351µs)
+data.lib.refs.test_bundle_in_pipelinerun_with_defaults: PASS (380.937µs)
+data.lib.refs.test_bundle_resolver_in_pipelinerun_with_defaults: PASS (729.667µs)
+--------------------------------------------------------------------------------
+PASS: 6/6
+```
+
+I could not find anything that stands out that we have not already noted
+previously in this document.
+
 __wip__
 
 
@@ -1014,6 +1033,7 @@ Is there an equivalent to [object.remove] in seedwing?
 [array_helpers.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/array_helpers.rego
 [bundles.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/bundles.rego
 [image.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/image.rego
+[refs.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/refs.rego
 [assertions.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/assertions.rego
 [regex.match]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-regex-regexmatch
 [string::regexp]: https://playground.seedwing.io/policy/string/regexp
