@@ -332,6 +332,60 @@ These rules operate/process/use the `tasks` array of the Tekton pipeline json:
       }],
       ...
 ```
+Lets take a closer look at one of these tests and start with the first one.
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.pipeline.task_bundle.test_bundle_not_exists$
+policy/pipeline/task_bundle_test.rego:
+data.policy.pipeline.task_bundle.test_bundle_not_exists: PASS (2.046295ms)
+--------------------------------------------------------------------------------
+PASS: 1/1
+```
+The `$` at then is so that the regular expression (`-r`) does not match other
+test but this one.
+The rule in this case looks like this:
+```
+# METADATA
+# title: Task bundle was not used or is not defined
+# description: |-
+#   Check for existence of a task bundle. Enforcing this rule will
+#   fail the contract if the task is not called from a bundle.
+# custom:
+#   short_name: disallowed_task_reference
+#   failure_msg: Pipeline task '%s' does not contain a bundle reference
+#
+deny contains result if {
+	some task in bundles.disallowed_task_reference(input.spec.tasks)
+	result := lib.result_helper(rego.metadata.chain(), [task.name])
+}
+```
+The `some` Rego keyword introduces a local variable. And notice that
+`bundles.disallowed_task_reference` is a rule imported from using:
+```
+import data.lib.bundles
+```
+This package can be found in `ec-policies/policy/lib/bundles.rego`:
+```
+# Returns a subset of tasks that do not use a bundle reference.
+disallowed_task_reference(tasks) = matches {
+	matches := {task |
+		task := tasks[_]
+		not bundle(task)
+	}
+}
+```
+This is called comprehension and are like rules that have a head and a body.
+The body will check for the absence of a bundle in the task and if that is the
+case that task will be added to the array to be returned.
+
+If we print the result from this test we will get:
+```json
+{
+  "code": "task_bundle.disallowed_task_reference",
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Pipeline task 'my-task' does not contain a bundle reference"
+}
+```
+
 There does not look like there are any complicated rules in this file that
 could not be written in Dogma.
 
@@ -375,18 +429,77 @@ deny[result] {
       result := lib.result_helper(rego.metadata.chain(), [name])                 
 } 
 ```
-Notice the usage of `[_]` which will be turned into a `for` loop I think,
+Again we see the usage of `bundles.disallowed_task_reference` which we now
+know is in policy/lib/bundles.rego.
+
+Also Notice the usage of `[_]` which will be turned into a `for` loop I think,
 ```
   result = []                                                             
-  for name in bundles.disallowed_task_reference(lib.tasks_from_pipelinerun:
+  for name in bundles.disallowed_task_reference(lib.tasks_from_pipelinerun):
     result.append(lib.result_helper(rego.metadata.chain(), [name]))
 ```
-And also notice that this returns `[result]` so there can be more than one.
-Also notice that the `bundles.disallowed_task_reference` is a rule in
-policy/lib/bundles.rego`. 
+And also notice that this returns `[result]`, which is an array/list so there
+can be more than one.
+
+The rests of the rules in this file follow the same pattern as well.
+
+
+#### [attestation_type.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/attestation_type.rego)
+The test can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.attestation_type.test_
+policy/release/attestation_type_test.rego:
+data.policy.release.attestation_type.test_allow_when_permitted: PASS (688.238µs)
+data.policy.release.attestation_type.test_deny_when_not_permitted: PASS (1.410065ms)
+data.policy.release.attestation_type.test_deny_when_missing_pipelinerun_attestations: PASS (880.901µs)
+--------------------------------------------------------------------------------
+PASS: 3/3
+
+This .rego file only contains two rules.
+
 ```
-      name := bundles.disallowed_task_reference(lib.tasks_from_pipelinerun)[_].name
+# METADATA
+# title: Unknown attestation type found
+# description: |-
+#   A sanity check to confirm the attestation found for the image has a known
+#   attestation type.
+# custom:
+#   short_name: unknown_att_type
+#   failure_msg: Unknown attestation type '%s'
+#   collections:
+#   - minimal
+#
+deny contains result if {
+	some att in lib.pipelinerun_attestations
+	att_type := att._type
+	not att_type in lib.rule_data("known_attestation_types")
+	result := lib.result_helper(rego.metadata.chain(), [att_type])
+}
+
+# METADATA
+# title: Missing pipelinerun attestation
+# description: >
+#   At least one PipelineRun attestation must be present.
+# custom:
+#   short_name: missing_pipelinerun_attestation
+#   failure_msg: Missing pipelinerun attestation
+#   collections:
+#   - minimal
+#
+deny contains result if {
+	count(lib.pipelinerun_attestations) == 0
+	result := lib.result_helper(rego.metadata.chain(), [])
+}
 ```
+`count` is used in a number of rules. In this case I think that the
+seedwing-policy builtin function `list::none<type> could be used. There
+are other builtin functions for [list](https://playground.seedwing.io/policy/list/):
+* all
+* any
+* head
+* none
+* some
+* tail
 
 
 
@@ -423,8 +536,20 @@ deny contains result if {
 ```
 This [metadata] was discussed earlier in this document.
 
+
+### list::count
+Rego has a builtin function named [count] which returns the number of elements
+in a collection or a string.
+
+Should seedwing-policy engine have a builtin function similar to this. For
+example:
+```
+list::count<anything>
+```
+
 [ec-policies]: https://github.com/hacbs-contract/ec-policies/
 [policy]: https://github.com/hacbs-contract/ec-policies/tree/main/policy
 [rego-builtin-functions]: https://www.openpolicyagent.org/docs/latest/policy-reference/#built-in-functions
 [rego annotations]: https://www.openpolicyagent.org/docs/latest/annotations
 [metadata]: #metadata-anchor
+[count]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-aggregates-count
