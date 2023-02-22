@@ -223,8 +223,9 @@ which one rule it was running. But if I had looked closer the rule is `deny` so
 all the rules with the name `deny` will be evaulated. This might just be my
 own lack of knowledge of Rego but it would have been nice to named the rules
 after what they are checking for, and then have a composite rule that checked
-all (not sure if that is possible though). But this is something to keep in mind
-when reading Rego.
+all (not sure if that is possible though). And this can also make test brittle
+as changing on of `deny` rules in the .rego can cause failures in other tests
+cases. This is something to keep in mind when reading Rego.
 
 Also notice the comment that start with `METADATA` which are actually
 [rego annotations] and are in yaml format. In the test above what is returned
