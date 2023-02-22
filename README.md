@@ -559,6 +559,21 @@ to accomplish the same thing.
 Other than that I don't see anything that stands out that we have not already
 noted previously in this document.
 
+
+#### [hermetic_build_task.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/hermetic_build_task.rego)
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.hermetic_build_task
+policy/release/hermetic_build_task_test.rego:
+data.policy.release.hermetic_build_task.test_hermetic_build: PASS (1.891496ms)
+data.policy.release.hermetic_build_task.test_not_hermetic_build: PASS (3.44756ms)
+--------------------------------------------------------------------------------
+PASS: 2/2
+```
+
+Looking at the rules in this file I don't see anything that stands out that we
+have not already noted previously in this document.
+
 __wip__
 
 
