@@ -533,6 +533,32 @@ PASS: 5/5
 Looking at the rules in this file I don't see anything that stands out that we
 have not already noted previously in this document.
 
+#### [buildah_build_task.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/buildah_build_task.rego)
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.buildah_build_task
+policy/release/buildah_build_task_test.rego:
+data.policy.release.buildah_build_task.test_good_dockerfile_param: PASS (1.497137ms)
+data.policy.release.buildah_build_task.test_dockerfile_param_https_source: PASS (1.702602ms)
+data.policy.release.buildah_build_task.test_dockerfile_param_http_source: PASS (1.642195ms)
+data.policy.release.buildah_build_task.test_dockerfile_param_not_included: PASS (1.841453ms)
+data.policy.release.buildah_build_task.test_task_not_named_buildah: PASS (994.518µs)
+data.policy.release.buildah_build_task.test_missing_pipeline_run_attestations: PASS (353.43µs)
+--------------------------------------------------------------------------------
+PASS: 6/6
+```
+One of the rules in this file uses the OPA builtin function [startwith]:
+```
+_not_allowed_prefix(search) if {
+	not_allowed := ["http://", "https://"]
+	startswith(search, not_allowed[_])
+}
+```
+In seedwing-policy there is a [string::regexp] which could probably be used
+to accomplish the same thing.
+Other than that I don't see anything that stands out that we have not already
+noted previously in this document.
+
 __wip__
 
 
@@ -583,3 +609,5 @@ list::count<anything>
 [rego annotations]: https://www.openpolicyagent.org/docs/latest/annotations
 [metadata]: #metadata-anchor
 [count]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-aggregates-count
+[startswith]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-startswith
+[string::regexp]: https://playground.seedwing.io/policy/string/regexp
