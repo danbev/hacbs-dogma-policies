@@ -502,6 +502,19 @@ are other builtin functions for [list](https://playground.seedwing.io/policy/lis
 * tail
 
 
+#### [authorization.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/authorization.rego)
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.authorization.
+policy/release/authorization_test.rego:
+data.policy.release.authorization.test_no_authorization: PASS (1.258138ms)
+data.policy.release.authorization.test_commit_does_not_match: PASS (2.131115ms)
+data.policy.release.authorization.test_repo_does_not_match: PASS (2.246286ms)
+--------------------------------------------------------------------------------
+PASS: 3/3
+```
+Looking at the rules in this file I don't see anything that stands out that we
+have not already noted previously in this document.
 
 __wip__
 
