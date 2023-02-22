@@ -781,6 +781,50 @@ PASS: 14/14
 I could not find anything that stands out that we have not already noted
 previously in this document.
 
+#### [lib/attestations.rego]
+This file is located in `policy/release/lib` but its is in the package `lib`.
+So running the tests for this will run all tests in the lib package:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.test
+
+policy/release/lib/attestations_test.rego:
+data.lib.test_pr_attestations: PASS (1.812474ms)
+data.lib.test_tr_attestations: PASS (1.08494ms)
+data.lib.test_att_mock_helper: PASS (548.6µs)
+data.lib.test_att_mock_helper_ref: PASS (518.411µs)
+data.lib.test_results_from_tests: PASS (1.933506ms)
+data.lib.test_task_in_pipelinerun: PASS (1.15716ms)
+data.lib.test_task_not_in_pipelinerun: PASS (410.277µs)
+data.lib.test_result_in_task: PASS (509.591µs)
+data.lib.test_result_not_in_task: PASS (466.433µs)
+data.lib.test_task_succeeded: PASS (434.931µs)
+data.lib.test_task_not_succeeded: PASS (453.579µs)
+--------------------------------------------------------------------------------
+PASS: 27/27
+```
+
+I could not find anything that stands out that we have not already noted
+previously in this document.
+
+
+### lib package
+
+
+#### [array_helpers.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.arrays
+policy/lib/array_helpers_test.rego:
+data.lib.arrays.test_rank: PASS (5.769567ms)
+data.lib.arrays.test_sort_by: PASS (12.339149ms)
+data.lib.arrays.test_sort_by_mixed_types: PASS (2.620735ms)
+data.lib.arrays.test_le: PASS (1.170197ms)
+--------------------------------------------------------------------------------
+PASS: 4/4
+```
+I could not find anything that stands out that we have not already noted
+previously in this document.
+
 
 __wip__
 
@@ -861,5 +905,7 @@ Is there way to do [comprehension] in seedwing?
 [basic.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/basic.rego
 [tasks.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/tasks.rego
 [test.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/test.rego
+[lib/attestations.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/lib/attestations.rego
+[array_helpers.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/array_helpers.rego
 [regex.match]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-regex-regexmatch
 [string::regexp]: https://playground.seedwing.io/policy/string/regexp
