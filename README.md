@@ -935,6 +935,93 @@ PASS: 6/6
 I could not find anything that stands out that we have not already noted
 previously in this document.
 
+#### [result_helper.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.test_result_helper
+policy/lib/result_helper_test.rego:
+data.lib.test_result_helper: PASS (1.006521ms)
+data.lib.test_result_helper_with_collections: PASS (1.049584ms)
+data.lib.test_result_helper_with_term: PASS (1.712958ms)
+--------------------------------------------------------------------------------
+PASS: 3/3
+```
+result_helper_with_term(chain, failure_sprintf_params, term) := result {
+	result := object.union(result_helper(chain, failure_sprintf_params), {"term": term})
+}
+```
+Notice the usage of the OPA builtin function [object.union]. Apart from that I
+could not find anything that stands out that we have not already noted
+previously in this document.
+
+#### [rule_data.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.test_rule_data
+policy/lib/rule_data_test.rego:
+data.lib.test_rule_data: PASS (587.105µs)
+data.lib.test_rule_data_defaults: PASS (172.991µs)
+--------------------------------------------------------------------------------
+PASS: 2/2
+```
+Contains default values that can be overridden using data/rule-data.yaml.
+
+#### [set_helpers.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.test_
+...
+policy/lib/set_helpers_test.rego:
+data.lib.test_to_set: PASS (376.71µs)
+data.lib.test_included_in: PASS (266.578µs)
+data.lib.test_any_included_in: PASS (970.486µs)
+data.lib.test_all_included_in: PASS (395.886µs)
+data.lib.test_none_included_in: PASS (489.773µs)
+data.lib.test_any_not_included_in: PASS (513.707µs)
+```
+
+I could not find anything that stands out that we have not already noted
+previously in this document.
+
+#### [string_utils.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.test_
+...
+policy/lib/string_utils_test.rego:
+data.lib.test_quoted_values_string: PASS (433.481µs) 
+```
+
+I could not find anything that stands out that we have not already noted
+previously in this document.
+
+#### [time.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.time
+policy/lib/time_test.rego:
+data.lib.time.test_when_rule_precedence: PASS (484.78µs)
+data.lib.time.test_when_package_precedence: PASS (262.631µs)
+data.lib.time.test_effective_current_time_ns: PASS (1.001536ms)
+data.lib.time.test_most_current: PASS (4.16015ms)
+data.lib.time.test_future_items: PASS (959.12µs)
+data.lib.time.test_acceptable_items: PASS (2.921775ms)
+data.lib.time.test_newest: PASS (2.81541ms)
+--------------------------------------------------------------------------------
+PASS: 7/7
+```
+```
+# Handle edge case where data.config is not present
+# (We can't do `object.get(data, ...)` for some reason)
+effective_current_time_ns = now_ns {
+	not data.config
+	now_ns := time.now_ns()
+}
+```
+Notice the usage of the buildin OPA [time] functions in this file. Apart from
+that I could not find anything that stands out that we have not already noted
+previously in this document.
+
 __wip__
 
 
@@ -1000,6 +1087,9 @@ Is there an equivalent to [array.concat] in seedwing?
 ### object.remove function
 Is there an equivalent to [object.remove] in seedwing?
 
+### object.union function
+Is there an equivalent to [object.union] in seedwing?
+
 
 [ec-policies]: https://github.com/hacbs-contract/ec-policies/
 [policy]: https://github.com/hacbs-contract/ec-policies/tree/main/policy
@@ -1035,6 +1125,10 @@ Is there an equivalent to [object.remove] in seedwing?
 [image.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/image.rego
 [refs.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/refs.rego
 [assertions.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/assertions.rego
+[result_helper.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/result_helper.rego
+[rule_data.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/rule_data.rego
+[set_helpers.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/set_helpers.rego
+[string_utils.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/string_utils.rego
 [regex.match]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-regex-regexmatch
 [string::regexp]: https://playground.seedwing.io/policy/string/regexp
 [split]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-split
@@ -1042,3 +1136,5 @@ Is there an equivalent to [object.remove] in seedwing?
 [array.slice]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-array-arrayslice
 [contains]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-contains
 [object.remove]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-object-objectremove
+[object.union]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-object-objectunion
+[time]: https://www.openpolicyagent.org/docs/latest/policy-reference/#time
