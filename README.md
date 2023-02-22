@@ -755,6 +755,33 @@ PASS: 13/13
 I could not find anything that stands out that we have not already noted
 previously in this document.
 
+#### [test.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.test
+policy/release/test_test.rego:
+data.policy.release.test.test_needs_non_empty_data: PASS (2.767841ms)
+data.policy.release.test.test_needs_tests_with_results: PASS (1.967185ms)
+data.policy.release.test.test_needs_tests_with_results_mixed: PASS (2.81911ms)
+data.policy.release.test.test_success_data: PASS (1.63636ms)
+data.policy.release.test.test_failure_data: PASS (2.40398ms)
+data.policy.release.test.test_error_data: PASS (2.497653ms)
+data.policy.release.test.test_mix_data: PASS (5.148552ms)
+data.policy.release.test.test_skipped_is_not_deny: PASS (1.525487ms)
+data.policy.release.test.test_skipped_is_warning: PASS (1.893744ms)
+data.policy.release.test.test_warning_is_warning: PASS (1.973745ms)
+data.policy.release.test.test_mixed_statuses: PASS (20.426434ms)
+data.policy.release.test.test_unsupported_test_result: PASS (6.470674ms)
+data.policy.release.test.test_missing_wrong_attestation_type: PASS (1.240121ms)
+data.policy.release.test.test_wrong_attestation_type: PASS (1.221967ms)
+--------------------------------------------------------------------------------
+PASS: 14/14
+```
+
+I could not find anything that stands out that we have not already noted
+previously in this document.
+
+
 __wip__
 
 
@@ -802,6 +829,9 @@ list::count<anything>
 ### concat function
 Should seedwing policy engine provide a builtin function similar to [concat]?
 
+### comprehension
+Is there way to do [comprehension] in seedwing?
+
 
 [ec-policies]: https://github.com/hacbs-contract/ec-policies/
 [policy]: https://github.com/hacbs-contract/ec-policies/tree/main/policy
@@ -812,6 +842,7 @@ Should seedwing policy engine provide a builtin function similar to [concat]?
 [startswith]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-startswith
 [string::regexp]: https://playground.seedwing.io/policy/string/regexp
 [concat]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-concat
+[comprehensions]: https://www.openpolicyagent.org/docs/latest/policy-language/#comprehensions
 
 [slsa_source_version_controlled.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/slsa_source_version_controlled.rego
 [slsa_provenance_available.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/slsa_provenance_available.rego
@@ -829,5 +860,6 @@ Should seedwing policy engine provide a builtin function similar to [concat]?
 [step_image_registries.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/step_image_registries.rego
 [basic.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/basic.rego
 [tasks.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/tasks.rego
+[test.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/test.rego
 [regex.match]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-regex-regexmatch
 [string::regexp]: https://playground.seedwing.io/policy/string/regexp
