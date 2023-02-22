@@ -1022,6 +1022,46 @@ Notice the usage of the buildin OPA [time] functions in this file. Apart from
 that I could not find anything that stands out that we have not already noted
 previously in this document.
 
+#### [tekton/task.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.tkn
+policy/lib/tekton/task_test.rego:
+data.lib.tkn.test_latest_required_tasks: PASS (5.382ms)
+data.lib.tkn.test_current_required_tasks: PASS (2.674674ms)
+data.lib.tkn.test_tasks_from_attestation: PASS (874.874µs)
+data.lib.tkn.test_tasks_from_pipeline: PASS (1.189763ms)
+data.lib.tkn.test_tasks_from_partial_pipeline: PASS (1.109018ms)
+data.lib.tkn.test_tasks_not_found: PASS (246.716µs)
+data.lib.tkn.test_task_param: PASS (392.174µs)
+data.lib.tkn.test_task_result: PASS (382.713µs)
+data.lib.tkn.test_tasks_from_attestation#01: PASS (5.379755ms)
+data.lib.tkn.test_tasks_from_pipeline#01: PASS (7.468758ms)
+data.lib.tkn.test_build_task: PASS (1.523955ms)
+data.lib.tkn.test_build_task_not_found: PASS (1.974705ms)
+data.lib.tkn.test_task_data_bundle_ref: PASS (379.39µs)
+data.lib.tkn.test_task_data_no_bundle_Ref: PASS (290.485µs)
+data.lib.tkn.test_missing_required_tasks_data: PASS (351.136µs)
+--------------------------------------------------------------------------------
+PASS: 15/15
+```
+```
+# build_task returns the build task found in the attestation
+build_task(attestation) := task if {
+	some task in tasks(attestation)
+
+	image_url := task_result(task, "IMAGE_URL")
+	count(trim_space(image_url)) > 0
+
+	image_digest := task_result(task, "IMAGE_DIGEST")
+	count(trim_space(image_digest)) > 0
+}
+```
+Notice the usage of the OPA builtin function [trim_space]. Apart from that I
+could not find anything that stands out that we have not already noted
+previously in this document.
+
+
 __wip__
 
 
@@ -1137,4 +1177,4 @@ Is there an equivalent to [object.union] in seedwing?
 [contains]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-contains
 [object.remove]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-object-objectremove
 [object.union]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-object-objectunion
-[time]: https://www.openpolicyagent.org/docs/latest/policy-reference/#time
+[time]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-trim_space
