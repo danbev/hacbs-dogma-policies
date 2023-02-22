@@ -715,6 +715,20 @@ has a builtin function [string::regexp] that could be used in this case.
 Apart from that I don't see anything that stands out that we have not already
 noted previously in this document.
 
+#### [step_image_registries.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.step_image_registries
+policy/release/step_image_registries_test.rego:
+data.policy.release.step_image_registries.test_image_registry_valid: PASS (952.948µs)
+data.policy.release.step_image_registries.test_attestation_type_invalid: PASS (1.419498ms)
+data.policy.release.step_image_registries.test_missing_rule_data: PASS (801.222µs)
+--------------------------------------------------------------------------------
+PASS: 3/3
+```
+
+I could not find anything that stands out that we have not already noted
+previously in this document.
 
 __wip__
 
@@ -787,6 +801,7 @@ Should seedwing policy engine provide a builtin function similar to [concat]?
 [attestation_task_bundle.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/attestation_task_bundle.rego
 [task_bundle.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/task_bundle.rego
 [required_tasks.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/required_tasks.rego
+[step_image_registries.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/step_image_registries.rego
 [basic.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/basic.rego
 [regex.match]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-regex-regexmatch
 [string::regexp]: https://playground.seedwing.io/policy/string/regexp
