@@ -16,14 +16,14 @@ directories:
 
 ### pipeline package
 
-#### [basic.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/basic.rego)
+#### [basic.rego]
 Looking at the comment in this file it does not seem to be a policy rule that
 is expected to be run by an external consumer:
 ```
 # (Not sure if we need this, but I'm using it to test the docs build.)
 ```
 
-#### [required_tasks.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/required_tasks.rego)
+#### [required_tasks.rego]
 This rule file contains polices related to Tekton pipelines.
 
 The first policy rule is tested by `tasks.test_required_tasks_met`
@@ -295,7 +295,7 @@ Looking at the rest of the rules in required_tasks.rego I can't see anything
 that sticks out what would not be possible to write in Dogma.
 
 
-#### [task_bundle.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/task_bundle.rego)
+#### [task_bundle.rego]
 ```console
 $ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.pipeline.task_bundle
 policy/pipeline/task_bundle_test.rego:
@@ -394,7 +394,7 @@ Those are all the rules in `policy/pipeline/`.
 ### runtime package
 
 
-#### [attestation_task_bundle.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/attestation_task_bundle.rego)
+#### [attestation_task_bundle.rego]
 
 These test can be run using the following command:
 ```console
@@ -444,7 +444,7 @@ can be more than one.
 The rests of the rules in this file follow the same pattern as well.
 
 
-#### [attestation_type.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/attestation_type.rego)
+#### [attestation_type.rego]
 The test can be run using the following command:
 ```console
 $ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.attestation_type.test_
@@ -502,7 +502,7 @@ are other builtin functions for [list](https://playground.seedwing.io/policy/lis
 * tail
 
 
-#### [authorization.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/authorization.rego)
+#### [authorization.rego]
 The tests for these rules can be run using the following command:
 ```console
 $ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.authorization.
@@ -516,7 +516,7 @@ PASS: 3/3
 Looking at the rules in this file I don't see anything that stands out that we
 have not already noted previously in this document.
 
-#### [base_image_registries.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/base_image_registries.rego)
+#### [base_image_registries.rego]
 The tests for these rules can be run using the following command:
 ```console
 $ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.base_image_registries
@@ -533,7 +533,7 @@ PASS: 5/5
 Looking at the rules in this file I don't see anything that stands out that we
 have not already noted previously in this document.
 
-#### [buildah_build_task.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/buildah_build_task.rego)
+#### [buildah_build_task.rego]
 The tests for these rules can be run using the following command:
 ```console
 $ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.buildah_build_task
@@ -560,7 +560,7 @@ Other than that I don't see anything that stands out that we have not already
 noted previously in this document.
 
 
-#### [hermetic_build_task.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/hermetic_build_task.rego)
+#### [hermetic_build_task.rego]
 The tests for these rules can be run using the following command:
 ```console
 $ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.hermetic_build_task
@@ -574,7 +574,7 @@ PASS: 2/2
 Looking at the rules in this file I don't see anything that stands out that we
 have not already noted previously in this document.
 
-#### [java.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/java.rego)
+#### [java.rego]
 The tests for these rules can be run using the following command:
 ```console
 $ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.java
@@ -589,6 +589,131 @@ PASS: 4/4
 
 Looking at the rules in this file I don't see anything that stands out that we
 have not already noted previously in this document.
+
+#### [slsa_build_build_service.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.slsa_build_build_service
+policy/release/slsa_build_build_service_test.rego:
+data.policy.release.slsa_build_build_service.test_all_good: PASS (753.356µs)
+data.policy.release.slsa_build_build_service.test_missing_builder_id: PASS (1.239524ms)
+data.policy.release.slsa_build_build_service.test_unexpected_builder_id: PASS (1.195689ms)
+--------------------------------------------------------------------------------
+PASS: 3/3
+```
+There are only two rules in this file and I don't see anything that stands out
+that we have not already noted previously in this document.
+
+#### [slsa_build_scripted_build.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.slsa_build_scripted_build
+policy/release/slsa_build_scripted_build_test.rego:
+data.policy.release.slsa_build_scripted_build.test_all_good: PASS (4.925196ms)
+data.policy.release.slsa_build_scripted_build.test_scattered_results: PASS (2.878153ms)
+data.policy.release.slsa_build_scripted_build.test_missing_task_steps: PASS (3.817019ms)
+data.policy.release.slsa_build_scripted_build.test_empty_task_steps: PASS (3.904915ms)
+data.policy.release.slsa_build_scripted_build.test_results_missing_value_url: PASS (2.651686ms)
+data.policy.release.slsa_build_scripted_build.test_results_missing_value_digest: PASS (4.451127ms)
+data.policy.release.slsa_build_scripted_build.test_results_empty_value_url: PASS (3.240028ms)
+data.policy.release.slsa_build_scripted_build.test_results_empty_value_digest: PASS (2.317614ms)
+data.policy.release.slsa_build_scripted_build.test_subject_mismatch: PASS (3.999751ms)
+data.policy.release.slsa_build_scripted_build.test_subject_with_tag_and_digest_is_good: PASS (3.175914ms)
+data.policy.release.slsa_build_scripted_build.test_subject_with_tag_and_digest_mismatch_tag_is_good: PASS (4.564522ms)
+data.policy.release.slsa_build_scripted_build.test_subject_with_tag_and_digest_mismatch_digest_fails: PASS (3.595482ms)
+--------------------------------------------------------------------------------
+PASS: 12/12
+```
+
+```
+# METADATA
+# title: Mismatch subject
+# description: |-
+#   The subject of the attestations must match the IMAGE_DIGEST and
+#   IMAGE_URL values from the build task.
+# custom:
+#   short_name: subject_build_task_mismatch
+#   failure_msg: The attestation subject, %q, does not match the build task image, %q
+#   collections:
+#   - slsa1
+#   - slsa2
+#   - slsa3
+#
+deny contains result if {
+	some attestation in lib.pipelinerun_attestations
+	build_task := tkn.build_task(attestation)
+
+	some subject in attestation.subject
+
+	subject_image_ref := concat("@", [subject.name, subject_digest(subject)])
+	result_image_ref := concat("@", [
+		tkn.task_result(build_task, "IMAGE_URL"),
+		tkn.task_result(build_task, "IMAGE_DIGEST"),
+	])
+
+	not image.equal_ref(subject_image_ref, result_image_ref)
+
+	result := lib.result_helper(rego.metadata.chain(), [subject_image_ref, result_image_ref])
+}
+```
+The OPA builtin function [concat] joins a set of arrays of strings allowing a
+delimiter to be specified. Apart from that I don't see anything that stands out
+that we have not already noted previously in this document.
+
+
+#### [slsa_provenance_available.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.slsa_provenance_available
+policy/release/slsa_provenance_available_test.rego:
+data.policy.release.slsa_provenance_available.test_expected_predicate_type: PASS (660.988µs)
+data.policy.release.slsa_provenance_available.test_unexpected_predicate_type: PASS (1.318552ms)
+--------------------------------------------------------------------------------
+PASS: 2/2
+```
+This file only contains a single rule. This rules also uses the builtin
+[concat] function but apart from that I don't see anything that stands out
+that we have not already noted previously in this document.
+
+
+#### [slsa_source_version_controlled.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.slsa_source_version_controlled
+policy/release/slsa_source_version_controlled_test.rego:
+data.policy.release.slsa_source_version_controlled.test_all_good: PASS (834.294µs)
+data.policy.release.slsa_source_version_controlled.test_non_git_uri: PASS (1.610291ms)
+data.policy.release.slsa_source_version_controlled.test_non_git_commit: PASS (1.818546ms)
+data.policy.release.slsa_source_version_controlled.test_invalid_materials: PASS (1.250646ms)
+--------------------------------------------------------------------------------
+PASS: 4/4
+```
+
+```
+# METADATA
+# title: Material with git commit digest
+# description: |-
+#   Each entry in the predicate.materials array of the attestation includes
+#   a SHA1 digest which corresponds to a git commit.
+# custom:
+#   short_name: material_without_git_commit
+#   failure_msg: Material digest %q is not a git commit
+#   collections:
+#   - minimal
+#   - slsa2
+#   - slsa3
+#
+deny contains result if {
+	some material in materials
+	commit := material.digest.sha1
+	not regex.match("^[a-f0-9]{40}$", commit)
+	result := lib.result_helper(rego.metadata.chain(), [commit])
+}
+```
+Notice the usage of the [regex.match] builtin function. seedwing policy engine
+has a builtin function [string::regexp] that could be used in this case. 
+Apart from that I don't see anything that stands out that we have not already
+noted previously in this document.
 
 
 __wip__
@@ -635,6 +760,10 @@ example:
 list::count<anything>
 ```
 
+### concat function
+Should seedwing policy engine provide a builtin function similar to [concat]?
+
+
 [ec-policies]: https://github.com/hacbs-contract/ec-policies/
 [policy]: https://github.com/hacbs-contract/ec-policies/tree/main/policy
 [rego-builtin-functions]: https://www.openpolicyagent.org/docs/latest/policy-reference/#built-in-functions
@@ -642,4 +771,22 @@ list::count<anything>
 [metadata]: #metadata-anchor
 [count]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-aggregates-count
 [startswith]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-startswith
+[string::regexp]: https://playground.seedwing.io/policy/string/regexp
+[concat]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-concat
+
+[slsa_source_version_controlled.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/slsa_source_version_controlled.rego
+[slsa_provenance_available.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/slsa_provenance_available.rego
+[slsa_build_scripted_build.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/slsa_build_scripted_build.rego
+[slsa_build_build_service.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/slsa_build_build_service.rego
+[java.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/java.rego
+[hermetic_build_task.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/hermetic_build_task.rego
+[buildah_build_task.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/buildah_build_task.rego
+[base_image_registries.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/base_image_registries.rego
+[authorization.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/authorization.rego
+[attestation_type.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/attestation_type.rego
+[attestation_task_bundle.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/attestation_task_bundle.rego
+[task_bundle.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/task_bundle.rego
+[required_tasks.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/required_tasks.rego
+[basic.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/basic.rego
+[regex.match]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-regex-regexmatch
 [string::regexp]: https://playground.seedwing.io/policy/string/regexp
