@@ -574,6 +574,23 @@ PASS: 2/2
 Looking at the rules in this file I don't see anything that stands out that we
 have not already noted previously in this document.
 
+#### [java.rego](https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/java.rego)
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.java
+policy/release/java_test.rego:
+data.policy.release.java.test_all_good: PASS (1.788661ms)
+data.policy.release.java.test_has_foreign: PASS (1.885362ms)
+data.policy.release.java.test_unacceptable_bundle: PASS (1.269787ms)
+data.policy.release.java.test_missing_rule_data: PASS (1.435648ms)
+--------------------------------------------------------------------------------
+PASS: 4/4
+```
+
+Looking at the rules in this file I don't see anything that stands out that we
+have not already noted previously in this document.
+
+
 __wip__
 
 
