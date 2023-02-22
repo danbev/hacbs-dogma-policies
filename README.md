@@ -822,9 +822,99 @@ data.lib.arrays.test_le: PASS (1.170197ms)
 --------------------------------------------------------------------------------
 PASS: 4/4
 ```
+
 I could not find anything that stands out that we have not already noted
 previously in this document.
 
+#### [assertions.rego]
+This is used for internal testing so I'm going to skip it.
+
+#### [bundles.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.bundles
+policy/lib/bundles_test.rego:
+data.lib.bundles.test_disallowed_task_reference: PASS (833.448µs)
+data.lib.bundles.test_empty_task_bundle_reference: PASS (603.535µs)
+data.lib.bundles.test_unpinned_task_bundle: PASS (1.424388ms)
+data.lib.bundles.test_acceptable_bundle: PASS (11.617093ms)
+data.lib.bundles.test_out_of_date_task_bundle: PASS (7.360729ms)
+data.lib.bundles.test_unacceptable_task_bundles: PASS (4.692559ms)
+data.lib.bundles.test_is_equal: PASS (721.597µs)
+data.lib.bundles.test_acceptable_bundle_is_acceptable: PASS (1.917327ms)
+data.lib.bundles.test_unacceptable_bundle_is_unacceptable: PASS (840.708µs)
+data.lib.bundles.test_missing_required_data: PASS (291.419µs)
+--------------------------------------------------------------------------------
+PASS: 10/10
+```
+
+I could not find anything that stands out that we have not already noted
+previously in this document.
+
+#### [image.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.lib.image
+policy/lib/image_test.rego:
+data.lib.image.test_parse: PASS (7.415269ms)
+data.lib.image.test_equal: PASS (12.218698ms)
+--------------------------------------------------------------------------------
+PASS: 2/2
+```
+
+```
+# parse returns a data structure representing the different portions
+# of the OCI image reference.
+parse(ref) = d {
+	digest_parts := split(ref, "@")
+	digest := _get(digest_parts, 1, "")
+
+	contains(digest_parts[0], "/")
+	repo_parts := split(digest_parts[0], "/")
+
+	tag_parts := split(repo_parts[count(repo_parts) - 1], ":")
+	count(tag_parts) <= 2
+	tag := _get(tag_parts, 1, "")
+
+	repo := concat(
+		"/",
+		array.concat(
+			array.slice(repo_parts, 0, count(repo_parts) - 1),
+			[tag_parts[0]],
+		),
+	)
+
+	d := {
+		"digest": digest,
+		"repo": repo,
+		"tag": tag,
+	}
+}
+```
+Notice the usage of the OPA builtin functions [contains], [split],
+[array.concat], and [array.slice].
+
+```
+# equal_ref returns true if two image references point to the same image,
+# ignoring the tag. This complements the case where all parts of the reference
+# need to be equal.
+equal_ref(ref1, ref2) {
+	img1 := parse(ref1)
+	img2 := parse(ref2)
+
+	# need to make sure that the digest of one reference is present, otherwise we
+	# might end up comparing image references without tags and digests. equal_ref is
+	# commutative, so we can check that the digest exists for one of the references,
+	# in this case img1
+	img1.digest != ""
+	object.remove(img1, ["tag"]) == object.remove(img2, ["tag"])
+}
+```
+Notice the usage of the OPA builtin function [object.remove].
+
+Apart from the usages of the above OPA builtin functions I could not find
+anything that stands out that we have not already noted previously in this
+document.
 
 __wip__
 
@@ -876,6 +966,21 @@ Should seedwing policy engine provide a builtin function similar to [concat]?
 ### comprehension
 Is there way to do [comprehension] in seedwing?
 
+### split function
+Is there an equivalent to [split] in seedwing?
+
+### contains function
+Is there an equivalent to [contains] in seedwing?
+
+### array.slice function
+Is there an equivalent to [array.slice] in seedwing?
+
+### array.concat function
+Is there an equivalent to [array.concat] in seedwing?
+
+### object.remove function
+Is there an equivalent to [object.remove] in seedwing?
+
 
 [ec-policies]: https://github.com/hacbs-contract/ec-policies/
 [policy]: https://github.com/hacbs-contract/ec-policies/tree/main/policy
@@ -907,5 +1012,13 @@ Is there way to do [comprehension] in seedwing?
 [test.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/test.rego
 [lib/attestations.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/lib/attestations.rego
 [array_helpers.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/array_helpers.rego
+[bundles.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/bundles.rego
+[image.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/image.rego
+[assertions.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/lib/assertions.rego
 [regex.match]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-regex-regexmatch
 [string::regexp]: https://playground.seedwing.io/policy/string/regexp
+[split]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-split
+[array.concat]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-array-arrayconcat
+[array.slice]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-array-arrayslice
+[contains]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-contains
+[object.remove]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-object-objectremove
