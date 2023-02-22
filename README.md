@@ -730,6 +730,31 @@ PASS: 3/3
 I could not find anything that stands out that we have not already noted
 previously in this document.
 
+#### [tasks.rego]
+The tests for these rules can be run using the following command:
+```console
+$ opa test ./data/rule_data.yml ./policy checks -v -r data.policy.release.tasks
+policy/release/tasks_test.rego:
+data.policy.release.tasks.test_required_tasks_met: PASS (10.880552ms)
+data.policy.release.tasks.test_required_tasks_met_no_label: PASS (20.863289ms)
+data.policy.release.tasks.test_required_tasks_warning_no_label: PASS (5.029754ms)
+data.policy.release.tasks.test_required_tasks_not_met: PASS (10.506739ms)
+data.policy.release.tasks.test_future_required_tasks_met: PASS (10.110137ms)
+data.policy.release.tasks.test_future_required_tasks_not_met: PASS (9.739569ms)
+data.policy.release.tasks.test_extra_tasks_ignored: PASS (20.555399ms)
+data.policy.release.tasks.test_current_equal_latest: PASS (8.079064ms)
+data.policy.release.tasks.test_current_equal_latest_also: PASS (11.771365ms)
+data.policy.release.tasks.test_no_tasks_present: PASS (1.21569ms)
+data.policy.release.tasks.test_parameterized: PASS (9.539765ms)
+data.policy.release.tasks.test_missing_required_tasks_data: PASS (3.263714ms)
+data.policy.release.tasks.test_missing_required_pipeline_data: PASS (4.462743ms)
+--------------------------------------------------------------------------------
+PASS: 13/13
+```
+
+I could not find anything that stands out that we have not already noted
+previously in this document.
+
 __wip__
 
 
@@ -803,5 +828,6 @@ Should seedwing policy engine provide a builtin function similar to [concat]?
 [required_tasks.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/required_tasks.rego
 [step_image_registries.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/step_image_registries.rego
 [basic.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/pipeline/basic.rego
+[tasks.rego]: https://github.com/hacbs-contract/ec-policies/blob/main/policy/release/tasks.rego
 [regex.match]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-regex-regexmatch
 [string::regexp]: https://playground.seedwing.io/policy/string/regexp
