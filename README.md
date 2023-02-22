@@ -1,10 +1,11 @@
 # HACBS policies
 This repository will take a look at the Hybrid Application Cloud Build Services
-(HACBS) [policies], and look at their usages of the Rego rule language usage.
+(HACBS) Enterprise Contract (EC) [ec-policies], and look at their usages of the
+Rego rule language usage.
 
 The goal is to make sure that the policy rules could be written in the Dogma
 language, and if not open issues for functionality that may be missing. The
-intention is not to re-write/translate all the HACBS Rego rules.
+intention is `not` to re-write/translate all the ec-policies rules.
 
 ## HACBS Policy Rules
 The HACBS policy rules can be found in [policy] which contains the following
@@ -290,7 +291,6 @@ $ opa inspect -a policy/pipeline
 ```
 
 
-
 Looking at the rest of the rules in required_tasks.rego I can't see anything
 that sticks out what would not be possible to write in Dogma.
 
@@ -423,7 +423,7 @@ deny contains result if {
 ```
 This [metadata] was discussed earlier in this document.
 
-[policies]: https://github.com/hacbs-contract/ec-policies/
+[ec-policies]: https://github.com/hacbs-contract/ec-policies/
 [policy]: https://github.com/hacbs-contract/ec-policies/tree/main/policy
 [rego-builtin-functions]: https://www.openpolicyagent.org/docs/latest/policy-reference/#built-in-functions
 [rego annotations]: https://www.openpolicyagent.org/docs/latest/annotations
