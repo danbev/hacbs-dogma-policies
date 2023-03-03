@@ -1111,7 +1111,82 @@ Kubernetes Client           v0.26.2
 
 #### Running
 ```console
-$ ./hack/simple-demo.sh 
+$ ./hack/simple-demo.sh --debug
++ IMAGE=quay.io/redhat-appstudio/ec-golden-image:latest
++ PUBLIC_KEY='-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEODgxyIz09vBqJlXXzjp/X2h17WIt
+jCVQhnDYVWHvXhw6rgqGeg6NTUxIEhRQqQZaF9mcBotHkuYGJfYZbai+FA==
+-----END PUBLIC KEY-----'
++ POLICY_SOURCE=quay.io/hacbs-contract/ec-release-policy:latest
++ DATA_SOURCE=quay.io/hacbs-contract/ec-policy-data:latest
++ POLICY='{
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEODgxyIz09vBqJlXXzjp/X2h17WIt\njCVQhnDYVWHvXhw6rgqGeg6NTUxIEhRQqQZaF9mcBotHkuYGJfYZbai+FA==\n-----END PUBLIC KEY-----",
+  "sources": [
+    {
+      "name": "EC Policies",
+      "policy": [
+        "quay.io/hacbs-contract/ec-release-policy:latest"
+      ],
+      "data": [
+        "quay.io/hacbs-contract/ec-policy-data:latest"
+      ]
+    }
+  ],
+  "configuration": {
+    "exclude": [
+    ],
+    "include": [
+      "*"
+    ]
+  }
+}'
++ OPTS=--debug
+++ git rev-parse --show-toplevel
++ MAIN_GO=/home/danielbevenius/work/security/hacbs/ec-cli/main.go
++ go run /home/danielbevenius/work/security/hacbs/ec-cli/main.go validate image --image quay.io/redhat-appstudio/ec-golden-image:latest --policy '{
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEODgxyIz09vBqJlXXzjp/X2h17WIt\njCVQhnDYVWHvXhw6rgqGeg6NTUxIEhRQqQZaF9mcBotHkuYGJfYZbai+FA==\n-----END PUBLIC KEY-----",
+  "sources": [
+    {
+      "name": "EC Policies",
+      "policy": [
+        "quay.io/hacbs-contract/ec-release-policy:latest"
+      ],
+      "data": [
+        "quay.io/hacbs-contract/ec-policy-data:latest"
+      ]
+    }
+  ],
+  "configuration": {
+    "exclude": [
+    ],
+    "include": [
+      "*"
+    ]
+  }
+}' --debug
++ yq -P
+DEBU[0000] input.go:63 DetermineInputSpec Generating application snapshot from imageRef quay.io/redhat-appstudio/ec-golden-image:latest 
+DEBU[0000] policy.go:129 NewPolicy Read EnterpriseContractPolicy as JSON        
+DEBU[0000] policy.go:213 parseEffectiveTime Chosen to use effective time of `now`, using current time 2023-03-03T09:29:33Z 
+DEBU[0000] validate.go:40 ValidateImage Validating image quay.io/redhat-appstudio/ec-golden-image:latest 
+DEBU[0000] application_snapshot_image.go:175 SetImageURL Parsed image url quay.io/redhat-appstudio/ec-golden-image:latest 
+DEBU[0000] application_snapshot_image.go:111 NewApplicationSnapshotImage Fetching policy source group 'EC Policies'   
+DEBU[0000] application_snapshot_image.go:119 NewApplicationSnapshotImage policySource: &source.PolicyUrl{Url:"quay.io/hacbs-contract/ec-release-policy:latest", Kind:"policy"} 
+DEBU[0000] application_snapshot_image.go:119 NewApplicationSnapshotImage policySource: &source.PolicyUrl{Url:"quay.io/hacbs-contract/ec-policy-data:latest", Kind:"data"} 
+DEBU[0000] conftest_evaluator.go:109 NewConftestEvaluator Created work dir /tmp/ec-work-478101805      
+DEBU[0000] conftest_evaluator.go:372 createConfigJSON Include rules found. These will be written to file /tmp/ec-work-478101805/data 
+DEBU[0000] conftest_evaluator.go:376 createConfigJSON Exclude rules found. These will be written to file /tmp/ec-work-478101805/data 
+DEBU[0000] conftest_evaluator.go:380 createConfigJSON Collections found. These will be written to file /tmp/ec-work-478101805/data 
+DEBU[0000] policy.go:199 EffectiveTime Using effective time: 2023-03-03T09:29:33Z   
+DEBU[0000] conftest_evaluator.go:415 createConfigJSON Writing config data to /tmp/ec-work-478101805/data/config.json: "{\n    \"config\": {\n        \"policy\": {\n            \"exclude\": [],\n            \"include\": [\n                \"*\"\n            ],\n            \"when_ns\": 1677835773015926041\n        }\n    }\n}" 
+DEBU[0000] conftest_evaluator.go:115 NewConftestEvaluator Conftest test runner created                 
+DEBU[0000] application_snapshot_image.go:128 NewApplicationSnapshotImage Conftest evaluator initialized               
+DEBU[0001] application_snapshot_image.go:164 ValidateImageAccess Resp: &{MediaType:application/vnd.oci.image.manifest.v1+json Size:996 Digest:sha256:2a84336bbe74f06634f947506c93a597540ba157d75419817fb8edc3adeb4005 Data:[] URLs:[] Annotations:map[] Platform:<nil>} 
+DEBU[0001] output.go:82 SetImageAccessibleCheckFromError Image access check passed                    
+DEBU[0001] validate.go:136 resolveAndSetImageUrl Resolved image to quay.io/redhat-appstudio/ec-golden-image@sha256:2a84336bbe74f06634f947506c93a597540ba157d75419817fb8edc3adeb4005 
+DEBU[0001] application_snapshot_image.go:175 SetImageURL Parsed image url quay.io/redhat-appstudio/ec-golden-image@sha256:2a84336bbe74f06634f947506c93a597540ba157d75419817fb8edc3adeb4005 
+DEBU[0002] output.go:101 SetImageSignatureCheckFromError Image signature check failed                 
+DEBU[0003] output.go:123 SetAttestationSignatureCheckFromError Image attestation signature check failed     
 success: false
 components:
   - name: Unnamed
