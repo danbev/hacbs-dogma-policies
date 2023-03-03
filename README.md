@@ -1062,6 +1062,72 @@ could not find anything that stands out that we have not already noted
 previously in this document.
 
 
+### Enterprise Contract CLI
+This section will try to explain and show an example of using the ec-policies
+using [Enterprise Contract CLI]
+
+#### Building
+```console
+$ make build
+❱ dist/ec_linux_amd64
+go: downloading muzzammil.xyz/jsonc v1.0.0
+../../../../go/pkg/mod/github.com/open-policy-agent/conftest@v0.39.2/parser/jsonc/jsonc.go:6:2: unrecognized import path "muzzammil.xyz/jsonc": parse https://muzzammil.xyz/jsonc?go-get=1: no go-import meta tags (meta tag github.com/muhammadmuzzammil1998/jsonc did not match import path muzzammil.xyz/jsonc)
+make: *** [Makefile:43: dist/ec_linux_amd64] Error 1
+```
+I spent around two hours trying to figure this out. It looks like the github
+repo was renamed/moved and it currently redirected to
+https://github.com/muhammadmuzzammil1998/jsonc. Just updating the dependency
+in go.mod dit not allow the build command to succeed as there seems to be
+transitive dependencies that also have the same dependencies and will fail
+with a similar message. But cloning that repo locally and then using a replace
+in go.mod seems to work:
+```go
+replace muzzammil.xyz/jsonc => /home/danielbevenius/work/security/hacbs/jsonc
+```
+Building with the above change:
+```console
+$ make build
+❱ dist/ec_linux_amd64
+❱ build
+❱ build
+❱ build
+```
+And we can check the build `ec` executable:
+```console
+$ ./dist/ec version
+Version                     v0.1.1008-f003128
+Source ID                   f00312855c29b1ede72ca0aadbfca3f4e02eb01f
+Change date                 2023-03-02 20:23:33 +0000 UTC (12 hours ago)
+ECC                         v0.0.0-20221220151524-ad0f637efacf
+OPA                         v0.49.2
+Conftest                    v0.39.2
+Red Hat AppStudio (shared)  v0.0.0-20220615221006-a71c1aa4b97f
+Cosign                      v1.13.1
+Sigstore                    v1.5.2
+Rekor                       v0.12.1-0.20220915152154-4bb6f441c1b2
+Tekton Pipeline             v0.42.0
+Kubernetes Client           v0.26.2
+```
+
+#### Running
+```console
+$ ./hack/simple-demo.sh 
+success: false
+components:
+  - name: Unnamed
+    containerImage: quay.io/redhat-appstudio/ec-golden-image@sha256:2a84336bbe74f06634f947506c93a597540ba157d75419817fb8edc3adeb4005
+    violations:
+      - msg: No image signatures found matching the given public key. Verify the correct public key was provided, and a signature was created.
+      - msg: No image attestations found matching the given public key. Verify the correct public key was provided, and one or more attestations were created.
+    success: false
+key: |
+  -----BEGIN PUBLIC KEY-----
+  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEODgxyIz09vBqJlXXzjp/X2h17WIt
+  jCVQhnDYVWHvXhw6rgqGeg6NTUxIEhRQqQZaF9mcBotHkuYGJfYZbai+FA==
+  -----END PUBLIC KEY-----
+```
+
+
 __wip__
 
 
@@ -1178,3 +1244,4 @@ Is there an equivalent to [object.union] in seedwing?
 [object.remove]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-object-objectremove
 [object.union]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-object-objectunion
 [time]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-trim_space
+[enterprise_contract_cli]: https://github.com/hacbs-contract/ec-cli
