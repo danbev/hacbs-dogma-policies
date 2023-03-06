@@ -1002,12 +1002,70 @@ Notice the usage of the OPA builtin function [trim_space]. Apart from that I
 could not find anything that stands out that we have not already noted
 previously in this document.
 
+#### Rule output format
+The following are examples of the returned format of rule invocation:
+```
+{
+  "code": "required_tasks.missing_required_task",
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Required task \"buildah\" is missing"
+}
+```
+The return object may optionally contain a `term` field:
+```
+{
+  "code": "tasks.missing_required_task",
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Required task \"buildah\" is missing",
+  "term": "buildah"
+}
+```
+And it can also optionally contain a `collection` field:
+```
+{
+  "code": "cve.found_cve_vulnerabilities",
+  "collections": ["minimal"],
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Found 1 CVE vulnerabilities of critical security level",
+  "term": "critical"}
+```
 
+The following struct can be found in `internal/opa/rule/rule.go`:
+```go
+type Info struct {
+	Code             string
+	CodePackage      string
+	Collections      []string
+	Description      string
+	DocumentationUrl string
+	Kind             RuleKind
+	Package          string
+	ShortName        string
+	Title            string
+}
+
+type RuleKind string
+
+const (
+	Deny  RuleKind = "deny"
+	Warn  RuleKind = "warn"
+	Other RuleKind = "other"
+)
+```
+Looking at the `Info` struct we can see that it contains the `documentation`,
+`title`, `package` (CodePackage) builtin Rego annoations, and also a number of
+custom annotations like `short_name`, `collections`.
+
+A question I'm trying to answer is how are is this metadata use in HACBS. The
+motivation for asking this question is that if we were to consider writing rules
+in Dogma in addition to Rego how would that work with regards to this metadata.
+
+To try to figure this out I'm going to look at the
+[Enterprise Contract CLI](#enterprise-contract-cli).
 
 ### Enterprise Contract CLI
 This section will try to explain and show an example of using the ec-policies
 using [Enterprise Contract CLI].
-
 
 #### Building
 ```console
@@ -1074,13 +1132,12 @@ $ go run /home/danielbevenius/work/security/hacbs/ec-cli/main.go validate pipeli
   }
 ]
 ```
-Inspecting the debug output we can see that this tool will download data and
-policy files.
+Inspecting the debug output file we can see that this tool will download data
+and policy files.
 ```
 time="2023-03-06T09:37:54+01:00" level=debug
 msg="Downloading policy files from source url oci::quay.io/hacbs-contract/ec-pipeline-policy:latest to destination /tmp/ec-work-312293674/policy/2f9065936" func=GetPolicy file=" source.go:66"
-
-
+...
 time="2023-03-06T09:37:55+01:00" level=debug
 msg="Downloading policy files from source url git::https://github.com/hacbs-contract/ec-policies.git//data to destination /tmp/ec-work-312293674/data/13f2de0c0" func=GetPolicy file=" source.go:66"
 ```
@@ -1090,16 +1147,17 @@ following directory (might differ for each run of the tool):
 $ ls /tmp/ec-work-312293674/
 data  policy
 ```
-The downloaded policy file will be parsed (opa.InspectDir) and stored.
+The downloaded policy file will be parsed (opa.InspectDir) in 
+internal/evaluator/conftest_evaluator.go's Evaluate method.
 
-Looking at the debug logging we can see that the `runner` is logged and before
-it is called:
+Looking at the debug output we can see that the `runner` is logged before it is
+called:
 ```go
 	log.Debugf("runner: %#v", r)
 	log.Debugf("inputs: %#v", inputs)
 	runResults, err := r.Run(ctx, inputs)
 ```
-The runner if created using the following code:
+The runner is created using the following code:
 ```go
 		r = &runner.TestRunner{
 			Data:          []string{c.dataDir},
@@ -1110,10 +1168,10 @@ The runner if created using the following code:
 		}
 ```
 This `runner.TestRunner` is from [test runner] which is a library provided by
-OPA, and it is its  TestRunner's [Run] method that will be called.
+OPA, and it is its TestRunner's [Run] method that will be called.
 
 We can run `conftest` locally on the downloaded files using the following
-command:
+command to see what the "pure" OPA output is:
 ```console
 $ conftest test --policy /tmp/ec-work-312293674/policy/2f9065936/policy --data /tmp/ec-work-312293674/data/13f2de0c0/ --all-namespaces --output json pipeline-file.json 
 [
@@ -1146,7 +1204,7 @@ $ conftest test --policy /tmp/ec-work-312293674/policy/2f9065936/policy --data /
 ```
 Notice that this above `metadata` field only contains two fields, the `code` and
 `effective_on` field. But the `metadata` reported by `ec validate pipeline`
-returned:
+returned the following in the metadata field:
 ```
         "metadata": {
           "code": "required_tasks.missing_required_pipeline_task",
@@ -1223,7 +1281,7 @@ func addMetadataToResults(results []output.Result, rules policyRules) {
 	}
 }
 ```
-Where we can see that `Title`, `Description`, and `Collections` are added to
+Here we can see that `Title`, `Description`, and `Collections` are added to
 the result metadata.
 
 
@@ -1302,85 +1360,6 @@ Custom:
  short_name:  "tasks_missing"                                                   
  failure_msg: "No tasks found in PipelineRun attestation"
 ```
-
-#### Rule output format
-The following are examples of the returned format of rule invocation:
-```
-{
-  "code": "required_tasks.missing_required_task",
-  "effective_on": "2022-01-01T00:00:00Z",
-  "msg": "Required task \"buildah\" is missing"
-}
-```
-The return object may optionally contain a `term` field:
-```
-{
-  "code": "tasks.missing_required_task",
-  "effective_on": "2022-01-01T00:00:00Z",
-  "msg": "Required task \"buildah\" is missing",
-  "term": "buildah"
-}
-```
-And it can also optionally contain a `collection` field:
-```
-{
-  "code": "cve.found_cve_vulnerabilities",
-  "collections": ["minimal"],
-  "effective_on": "2022-01-01T00:00:00Z",
-  "msg": "Found 1 CVE vulnerabilities of critical security level",
-  "term": "critical"}
-```
-
-The following struct can be found in `internal/opa/rule/rule.go`:
-```go
-type Info struct {
-	Code             string
-	CodePackage      string
-	Collections      []string
-	Description      string
-	DocumentationUrl string
-	Kind             RuleKind
-	Package          string
-	ShortName        string
-	Title            string
-}
-
-type RuleKind string
-
-const (
-	Deny  RuleKind = "deny"
-	Warn  RuleKind = "warn"
-	Other RuleKind = "other"
-)
-```
-Looking at the `Info` struct we can see that it contains the `documentation`,
-`title`, `package` (CodePackage) builtin Rego annoations, and also a number of
-custom annoations like `short_name`, `collections`.
-
-Now, take a rule like the following:
-```
-# METADATA
-# title: No tasks run
-# description: |-
-#   This policy enforces that at least one Task is present in the PipelineRun
-#   attestation.
-# custom:
-#   short_name: tasks_missing
-#   failure_msg: No tasks found in PipelineRun attestation
-#   collections:
-#   - minimal
-#
-deny contains result if {
-	some att in lib.pipelinerun_attestations
-	count(tkn.tasks(att)) == 0
-	result := lib.result_helper(rego.metadata.chain(), [])
-}
-```
-Notice that `count` in this case is checking that if there are tasks (greater
-than zero) then this rule will not continue evaulation as that statement is not
-fulfilled.
-So the above results are only returned when a rule "triggers"
-
 
 
 __wip__
