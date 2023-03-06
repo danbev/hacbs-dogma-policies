@@ -1065,7 +1065,7 @@ This section will try to explain and show an example of using the ec-policies
 using [Enterprise Contract CLI].
 
 The motivation for looking at this command line tool that I believe that this
-same tool is used in the tekton [verify-enterprise-contract] tekton task.
+same tool is used in the tekton [verify_enterprise_task] tekton task.
 
 #### Building
 ```console
@@ -1516,5 +1516,5 @@ Is there an equivalent to [object.union] in seedwing?
 [test_runner]: https://github.com/open-policy-agent/conftest/blob/master/runner/verify.go#L17
 [run]: https://github.com/open-policy-agent/conftest/blob/3392e219c86c0d06f116dee54bcf475561b424ff/runner/verify.go#L35
 [conftest]: https://www.conftest.dev/install/
-[verify-enterprise-task]: https://github.com/hacbs-contract/tekton-catalog/blob/main/tasks/verify-enterprise-contract/0.1/verify-enterprise-contract.yaml
+[verify_enterprise_task]: https://github.com/hacbs-contract/tekton-catalog/blob/main/tasks/verify-enterprise-contract/0.1/verify-enterprise-contract.yaml
 [checkresults]: https://github.com/open-policy-agent/conftest/blob/3392e219c86c0d06f116dee54bcf475561b424ff/output/result.go#L77
