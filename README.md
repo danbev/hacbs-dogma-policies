@@ -1053,7 +1053,7 @@ Looking at the `Info` struct we can see that it contains the `documentation`,
 `title`, `package` (CodePackage) builtin Rego annoations, and also a number of
 custom annotations like `short_name`, `collections`.
 
-A question I'm trying to answer is how are is this metadata used in HACBS. The
+A question I'm trying to answer is how is this metadata used in HACBS. The
 motivation for asking this question is that if we were to consider writing rules
 in Dogma in addition to Rego how would that work with regards to this metadata.
 
