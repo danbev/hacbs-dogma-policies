@@ -1516,5 +1516,5 @@ Is there an equivalent to [object.union] in seedwing?
 [test_runner]: https://github.com/open-policy-agent/conftest/blob/master/runner/verify.go#L17
 [run]: https://github.com/open-policy-agent/conftest/blob/3392e219c86c0d06f116dee54bcf475561b424ff/runner/verify.go#L35
 [conftest]: https://www.conftest.dev/install/
-[verify_enterprise_task]: https://github.com/hacbs-contract/tekton-catalog/blob/main/tasks/verify-enterprise-contract/0.1/verify-enterprise-contract.yaml
+[verify_enterprise_task]: https://github.com/hacbs-contract/tekton-catalog/blob/474a3aeedf4ec51fc60f43c3790761e35f85f84c/tasks/verify-enterprise-contract/0.1/verify-enterprise-contract.yaml#L103
 [checkresults]: https://github.com/open-policy-agent/conftest/blob/3392e219c86c0d06f116dee54bcf475561b424ff/output/result.go#L77
