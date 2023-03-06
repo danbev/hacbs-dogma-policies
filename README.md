@@ -229,65 +229,6 @@ as changing on of `deny` rules in the .rego can cause failures in other tests
 cases. This is something to keep in mind when reading Rego.
 
 
-<a id="metadata-anchor"></a>
-Also notice the comment that start with `METADATA` which are actually
-[rego annotations] and are in yaml format. In the test above what is returned
-is the following:
-```console
-{
-  "code": "required_tasks.missing_required_task",
-  "effective_on": "2022-01-01T00:00:00Z",
-  "msg": "Required task \"buildah\" is missing", "term": "buildah"
-}
-```
-The metadata can then be accessed in rules using builtin-functions like
-`rego.metadata.chain()`. For example, printing out the output from that function
-for our above test would display:
-```console
-[{
-  "annotations": {
-    "custom": {
-      "failure_msg": "Required task %q is missing",
-      "short_name": "missing_required_task"
-    },
-    "description": "This policy enforces that the required set of tasks are included\nin the Pipeline definition.",
-    "scope": "rule",
-    "title": "Missing required task"
-  },
-  "path": ["policy", "pipeline", "required_tasks", "deny"]
-},{
-  "annotations": {
-    "description": "HACBS expects that certain Tekton tasks are executed during image builds.\nThis package includes policy rules to confirm that the pipeline definition\nincludes the required Tekton tasks.",
-    "scope": "package"
-  },
-  "path": ["policy", "pipeline", "required_tasks"]}
-```
-This is passed to the function `lib.result_helper_with_term` in the above rule:
-```
-	result := lib.result_helper_with_term(rego.metadata.chain(), [required_task], required_task)
-```
-And that will delegate to `result_helper`:
-```
-result_helper_with_term(chain, failure_sprintf_params, term) := result {
-	result := object.union(result_helper(chain, failure_sprintf_params), {"term": term})
-}
-
-result_helper(chain, failure_sprintf_params) := result {
-	with_collections := {"collections": _rule_annotations(chain).custom.collections}
-	result := object.union(_basic_result(chain, failure_sprintf_params), with_collections)
-} else := result {
-	result := _basic_result(chain, failure_sprintf_params)
-}
-```
-Notice that `result_helper` contains an `else` statement and will stop when
-the input does not match the `with_collections` rule, and then proceed to
-execute the else block.
-
-
-
-The metadata can also be displayed using the opa inspect command:
-```console
-$ opa inspect -a policy/pipeline
 ```
 
 
@@ -1062,9 +1003,11 @@ could not find anything that stands out that we have not already noted
 previously in this document.
 
 
+
 ### Enterprise Contract CLI
 This section will try to explain and show an example of using the ec-policies
-using [Enterprise Contract CLI]
+using [Enterprise Contract CLI].
+
 
 #### Building
 ```console
@@ -1111,96 +1054,333 @@ Kubernetes Client           v0.26.2
 
 #### Running
 ```console
-$ ./hack/simple-demo.sh --debug
-+ IMAGE=quay.io/redhat-appstudio/ec-golden-image:latest
-+ PUBLIC_KEY='-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEODgxyIz09vBqJlXXzjp/X2h17WIt
-jCVQhnDYVWHvXhw6rgqGeg6NTUxIEhRQqQZaF9mcBotHkuYGJfYZbai+FA==
------END PUBLIC KEY-----'
-+ POLICY_SOURCE=quay.io/hacbs-contract/ec-release-policy:latest
-+ DATA_SOURCE=quay.io/hacbs-contract/ec-policy-data:latest
-+ POLICY='{
-  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEODgxyIz09vBqJlXXzjp/X2h17WIt\njCVQhnDYVWHvXhw6rgqGeg6NTUxIEhRQqQZaF9mcBotHkuYGJfYZbai+FA==\n-----END PUBLIC KEY-----",
-  "sources": [
-    {
-      "name": "EC Policies",
-      "policy": [
-        "quay.io/hacbs-contract/ec-release-policy:latest"
-      ],
-      "data": [
-        "quay.io/hacbs-contract/ec-policy-data:latest"
-      ]
-    }
-  ],
-  "configuration": {
-    "exclude": [
+$ go run /home/danielbevenius/work/security/hacbs/ec-cli/main.go validate pipeline --pipeline-file pipeline-file.json --debug --verbose 2> output | jq
+[
+  {
+    "filename": "pipeline-file.json",
+    "violations": [],
+    "warnings": [
+      {
+        "msg": "Required tasks do not exist for pipeline \"docker-build\"",
+        "metadata": {
+          "code": "required_tasks.missing_required_pipeline_task",
+          "description": "This policy warns if a task list does not exist in the acceptable_bundles.yaml file",
+          "effective_on": "2022-01-01T00:00:00Z",
+          "title": "Missing required pipeline tasks"
+        }
+      }
     ],
-    "include": [
-      "*"
-    ]
+    "success": true
   }
-}'
-+ OPTS=--debug
-++ git rev-parse --show-toplevel
-+ MAIN_GO=/home/danielbevenius/work/security/hacbs/ec-cli/main.go
-+ go run /home/danielbevenius/work/security/hacbs/ec-cli/main.go validate image --image quay.io/redhat-appstudio/ec-golden-image:latest --policy '{
-  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEODgxyIz09vBqJlXXzjp/X2h17WIt\njCVQhnDYVWHvXhw6rgqGeg6NTUxIEhRQqQZaF9mcBotHkuYGJfYZbai+FA==\n-----END PUBLIC KEY-----",
-  "sources": [
-    {
-      "name": "EC Policies",
-      "policy": [
-        "quay.io/hacbs-contract/ec-release-policy:latest"
-      ],
-      "data": [
-        "quay.io/hacbs-contract/ec-policy-data:latest"
-      ]
-    }
-  ],
-  "configuration": {
-    "exclude": [
-    ],
-    "include": [
-      "*"
-    ]
-  }
-}' --debug
-+ yq -P
-DEBU[0000] input.go:63 DetermineInputSpec Generating application snapshot from imageRef quay.io/redhat-appstudio/ec-golden-image:latest 
-DEBU[0000] policy.go:129 NewPolicy Read EnterpriseContractPolicy as JSON        
-DEBU[0000] policy.go:213 parseEffectiveTime Chosen to use effective time of `now`, using current time 2023-03-03T09:29:33Z 
-DEBU[0000] validate.go:40 ValidateImage Validating image quay.io/redhat-appstudio/ec-golden-image:latest 
-DEBU[0000] application_snapshot_image.go:175 SetImageURL Parsed image url quay.io/redhat-appstudio/ec-golden-image:latest 
-DEBU[0000] application_snapshot_image.go:111 NewApplicationSnapshotImage Fetching policy source group 'EC Policies'   
-DEBU[0000] application_snapshot_image.go:119 NewApplicationSnapshotImage policySource: &source.PolicyUrl{Url:"quay.io/hacbs-contract/ec-release-policy:latest", Kind:"policy"} 
-DEBU[0000] application_snapshot_image.go:119 NewApplicationSnapshotImage policySource: &source.PolicyUrl{Url:"quay.io/hacbs-contract/ec-policy-data:latest", Kind:"data"} 
-DEBU[0000] conftest_evaluator.go:109 NewConftestEvaluator Created work dir /tmp/ec-work-478101805      
-DEBU[0000] conftest_evaluator.go:372 createConfigJSON Include rules found. These will be written to file /tmp/ec-work-478101805/data 
-DEBU[0000] conftest_evaluator.go:376 createConfigJSON Exclude rules found. These will be written to file /tmp/ec-work-478101805/data 
-DEBU[0000] conftest_evaluator.go:380 createConfigJSON Collections found. These will be written to file /tmp/ec-work-478101805/data 
-DEBU[0000] policy.go:199 EffectiveTime Using effective time: 2023-03-03T09:29:33Z   
-DEBU[0000] conftest_evaluator.go:415 createConfigJSON Writing config data to /tmp/ec-work-478101805/data/config.json: "{\n    \"config\": {\n        \"policy\": {\n            \"exclude\": [],\n            \"include\": [\n                \"*\"\n            ],\n            \"when_ns\": 1677835773015926041\n        }\n    }\n}" 
-DEBU[0000] conftest_evaluator.go:115 NewConftestEvaluator Conftest test runner created                 
-DEBU[0000] application_snapshot_image.go:128 NewApplicationSnapshotImage Conftest evaluator initialized               
-DEBU[0001] application_snapshot_image.go:164 ValidateImageAccess Resp: &{MediaType:application/vnd.oci.image.manifest.v1+json Size:996 Digest:sha256:2a84336bbe74f06634f947506c93a597540ba157d75419817fb8edc3adeb4005 Data:[] URLs:[] Annotations:map[] Platform:<nil>} 
-DEBU[0001] output.go:82 SetImageAccessibleCheckFromError Image access check passed                    
-DEBU[0001] validate.go:136 resolveAndSetImageUrl Resolved image to quay.io/redhat-appstudio/ec-golden-image@sha256:2a84336bbe74f06634f947506c93a597540ba157d75419817fb8edc3adeb4005 
-DEBU[0001] application_snapshot_image.go:175 SetImageURL Parsed image url quay.io/redhat-appstudio/ec-golden-image@sha256:2a84336bbe74f06634f947506c93a597540ba157d75419817fb8edc3adeb4005 
-DEBU[0002] output.go:101 SetImageSignatureCheckFromError Image signature check failed                 
-DEBU[0003] output.go:123 SetAttestationSignatureCheckFromError Image attestation signature check failed     
-success: false
-components:
-  - name: Unnamed
-    containerImage: quay.io/redhat-appstudio/ec-golden-image@sha256:2a84336bbe74f06634f947506c93a597540ba157d75419817fb8edc3adeb4005
-    violations:
-      - msg: No image signatures found matching the given public key. Verify the correct public key was provided, and a signature was created.
-      - msg: No image attestations found matching the given public key. Verify the correct public key was provided, and one or more attestations were created.
-    success: false
-key: |
-  -----BEGIN PUBLIC KEY-----
-  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEODgxyIz09vBqJlXXzjp/X2h17WIt
-  jCVQhnDYVWHvXhw6rgqGeg6NTUxIEhRQqQZaF9mcBotHkuYGJfYZbai+FA==
-  -----END PUBLIC KEY-----
+]
 ```
+Inspecting the debug output we can see that this tool will download data and
+policy files.
+```
+time="2023-03-06T09:37:54+01:00" level=debug
+msg="Downloading policy files from source url oci::quay.io/hacbs-contract/ec-pipeline-policy:latest to destination /tmp/ec-work-312293674/policy/2f9065936" func=GetPolicy file=" source.go:66"
+
+
+time="2023-03-06T09:37:55+01:00" level=debug
+msg="Downloading policy files from source url git::https://github.com/hacbs-contract/ec-policies.git//data to destination /tmp/ec-work-312293674/data/13f2de0c0" func=GetPolicy file=" source.go:66"
+```
+We can inspect the data and rule files locally which are available in the
+following directory (might differ for each run of the tool):
+```console
+$ ls /tmp/ec-work-312293674/
+data  policy
+```
+The downloaded policy file will be parsed (opa.InspectDir) and stored.
+
+Looking at the debug logging we can see that the `runner` is logged and before
+it is called:
+```go
+	log.Debugf("runner: %#v", r)
+	log.Debugf("inputs: %#v", inputs)
+	runResults, err := r.Run(ctx, inputs)
+```
+The runner if created using the following code:
+```go
+		r = &runner.TestRunner{
+			Data:          []string{c.dataDir},
+			Policy:        []string{c.policyDir},
+			AllNamespaces: true,
+			NoFail:        true,
+			Output:        c.outputFormat,
+		}
+```
+This `runner.TestRunner` is from [test runner] which is a library provided by
+OPA, and it is its  TestRunner's [Run] method that will be called.
+
+We can run `conftest` locally on the downloaded files using the following
+command:
+```console
+$ conftest test --policy /tmp/ec-work-312293674/policy/2f9065936/policy --data /tmp/ec-work-312293674/data/13f2de0c0/ --all-namespaces --output json pipeline-file.json 
+[
+	{
+		"filename": "pipeline-file.json",
+		"namespace": "lib",
+		"successes": 0
+	},
+	{
+		"filename": "pipeline-file.json",
+		"namespace": "lib.refs",
+		"successes": 0
+	},
+	{
+		"filename": "pipeline-file.json",
+		"namespace": "policy.pipeline.required_tasks",
+		"successes": 4,
+		"warnings": [
+			{
+				"msg": "Required tasks do not exist for pipeline \"docker-build\"",
+				"metadata": {
+					"code": "required_tasks.missing_required_pipeline_task",
+					"effective_on": "2022-01-01T00:00:00Z"
+				}
+			}
+		]
+	},
+    ...
+]
+```
+Notice that this above `metadata` field only contains two fields, the `code` and
+`effective_on` field. But the `metadata` reported by `ec validate pipeline`
+returned:
+```
+        "metadata": {
+          "code": "required_tasks.missing_required_pipeline_task",
+          "description": "This policy warns if a task list does not exist in the acceptable_bundles.yaml file",
+          "effective_on": "2022-01-01T00:00:00Z",
+          "title": "Missing required pipeline tasks"
+        }
+```
+This is because ec-cli/internal/evaluator/conftest_evaluator.go will add
+metadata to the results:
+```go
+	for i, result := range runResults {
+		log.Debugf("Evaluation result at %d: %#v", i, result)
+		warnings := []output.Result{}
+		failures := []output.Result{}
+
+		addMetadata(&result, rules)
+    }
+
+    ...
+}
+
+func addMetadata(result *output.CheckResult, rules policyRules) {
+	addMetadataToResults(result.Exceptions, rules)
+	addMetadataToResults(result.Failures, rules)
+	addMetadataToResults(result.Skipped, rules)
+	addMetadataToResults(result.Warnings, rules)
+}
+
+func addMetadataToResults(results []output.Result, rules policyRules) {
+	for i := range results {
+		r := &results[i]
+		if r.Metadata == nil {
+			continue
+		}
+
+		// normalize collection to []string
+		if v, ok := r.Metadata[metadataCollections]; ok {
+			switch vals := v.(type) {
+			case []any:
+				col := make([]string, 0, len(vals))
+				for _, c := range vals {
+					col = append(col, fmt.Sprint(c))
+				}
+				r.Metadata[metadataCollections] = col
+			case []string:
+				// all good, mainly left for documentation of the normalization
+			default:
+				// remove unsupported collections attribute
+				delete(r.Metadata, metadataCollections)
+			}
+		}
+
+		code, ok := r.Metadata[metadataCode].(string)
+		if !ok {
+			continue
+		}
+
+		rule, ok := (rules)[code]
+		if !ok {
+			continue
+		}
+		delete((rules), code)
+
+		if rule.Title != "" {
+			r.Metadata[metadataTitle] = rule.Title
+		}
+		if rule.Description != "" {
+			r.Metadata[metadataDescription] = rule.Description
+		}
+		if len(rule.Collections) > 0 {
+			r.Metadata[metadataCollections] = rule.Collections
+		}
+	}
+}
+```
+Where we can see that `Title`, `Description`, and `Collections` are added to
+the result metadata.
+
+
+<a id="metadata-anchor"></a>
+### Metadata
+Also notice the comments that start with `METADATA` which are actually
+[rego annotations] and are in yaml format. In the tests above what is returned
+is the following:
+```console
+{
+  "code": "required_tasks.missing_required_task",
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Required task \"buildah\" is missing", "term": "buildah"
+}
+```
+The metadata can then be accessed in rules using builtin-functions like
+`rego.metadata.chain()`. For example, printing out the output from that function
+for our above test would display:
+```console
+[{
+  "annotations": {
+    "custom": {
+      "failure_msg": "Required task %q is missing",
+      "short_name": "missing_required_task"
+    },
+    "description": "This policy enforces that the required set of tasks are included\nin the Pipeline definition.",
+    "scope": "rule",
+    "title": "Missing required task"
+  },
+  "path": ["policy", "pipeline", "required_tasks", "deny"]
+},{
+  "annotations": {
+    "description": "HACBS expects that certain Tekton tasks are executed during image builds.\nThis package includes policy rules to confirm that the pipeline definition\nincludes the required Tekton tasks.",
+    "scope": "package"
+  },
+  "path": ["policy", "pipeline", "required_tasks"]}
+```
+This is passed to the function `lib.result_helper_with_term` in the above rule:
+```
+	result := lib.result_helper_with_term(rego.metadata.chain(), [required_task], required_task)
+```
+And that will delegate to `result_helper`:
+```
+result_helper_with_term(chain, failure_sprintf_params, term) := result {
+	result := object.union(result_helper(chain, failure_sprintf_params), {"term": term})
+}
+
+result_helper(chain, failure_sprintf_params) := result {
+	with_collections := {"collections": _rule_annotations(chain).custom.collections}
+	result := object.union(_basic_result(chain, failure_sprintf_params), with_collections)
+} else := result {
+	result := _basic_result(chain, failure_sprintf_params)
+}
+```
+Notice that `result_helper` contains an `else` statement and will stop when
+the input does not match the `with_collections` rule, and then proceed to
+execute the else block.
+
+
+The metadata can also be displayed using the opa inspect command:
+```console
+$ opa inspect -a policy/release
+...
+No tasks run                                                                    
+============                                                                    
+                                                                                
+This policy enforces that at least one Task is present in the PipelineRun       
+attestation.                                                                    
+                                                                                 
+Package:  policy.release.tasks                                                  
+Rule:     deny                                                                  
+Location: policy/release/tasks.rego:37                                              
+                                                                                
+Custom:                                                                             
+ collections: ["minimal"]                                                       
+ short_name:  "tasks_missing"                                                   
+ failure_msg: "No tasks found in PipelineRun attestation"
+```
+
+#### Rule output format
+The following are examples of the returned format of rule invocation:
+```
+{
+  "code": "required_tasks.missing_required_task",
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Required task \"buildah\" is missing"
+}
+```
+The return object may optionally contain a `term` field:
+```
+{
+  "code": "tasks.missing_required_task",
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Required task \"buildah\" is missing",
+  "term": "buildah"
+}
+```
+And it can also optionally contain a `collection` field:
+```
+{
+  "code": "cve.found_cve_vulnerabilities",
+  "collections": ["minimal"],
+  "effective_on": "2022-01-01T00:00:00Z",
+  "msg": "Found 1 CVE vulnerabilities of critical security level",
+  "term": "critical"}
+```
+
+The following struct can be found in `internal/opa/rule/rule.go`:
+```go
+type Info struct {
+	Code             string
+	CodePackage      string
+	Collections      []string
+	Description      string
+	DocumentationUrl string
+	Kind             RuleKind
+	Package          string
+	ShortName        string
+	Title            string
+}
+
+type RuleKind string
+
+const (
+	Deny  RuleKind = "deny"
+	Warn  RuleKind = "warn"
+	Other RuleKind = "other"
+)
+```
+Looking at the `Info` struct we can see that it contains the `documentation`,
+`title`, `package` (CodePackage) builtin Rego annoations, and also a number of
+custom annoations like `short_name`, `collections`.
+
+Now, take a rule like the following:
+```
+# METADATA
+# title: No tasks run
+# description: |-
+#   This policy enforces that at least one Task is present in the PipelineRun
+#   attestation.
+# custom:
+#   short_name: tasks_missing
+#   failure_msg: No tasks found in PipelineRun attestation
+#   collections:
+#   - minimal
+#
+deny contains result if {
+	some att in lib.pipelinerun_attestations
+	count(tkn.tasks(att)) == 0
+	result := lib.result_helper(rego.metadata.chain(), [])
+}
+```
+Notice that `count` in this case is checking that if there are tasks (greater
+than zero) then this rule will not continue evaulation as that statement is not
+fulfilled.
+So the above results are only returned when a rule "triggers"
+
 
 
 __wip__
@@ -1320,3 +1500,5 @@ Is there an equivalent to [object.union] in seedwing?
 [object.union]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-object-objectunion
 [time]: https://www.openpolicyagent.org/docs/latest/policy-reference/#builtin-strings-trim_space
 [enterprise_contract_cli]: https://github.com/hacbs-contract/ec-cli
+[test_runner]: https://github.com/open-policy-agent/conftest/blob/master/runner/verify.go#L17
+[run]: https://github.com/open-policy-agent/conftest/blob/3392e219c86c0d06f116dee54bcf475561b424ff/runner/verify.go#L35
