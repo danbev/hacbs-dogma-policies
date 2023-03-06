@@ -1170,7 +1170,7 @@ The runner is created using the following code:
 This `runner.TestRunner` is from [test runner] which is a library provided by
 OPA, and it is its TestRunner's [Run] method that will be called.
 
-We can run `conftest` locally on the downloaded files using the following
+We can run [conftest] locally on the downloaded files using the following
 command to see what the "pure" OPA output is:
 ```console
 $ conftest test --policy /tmp/ec-work-312293674/policy/2f9065936/policy --data /tmp/ec-work-312293674/data/13f2de0c0/ --all-namespaces --output json pipeline-file.json 
@@ -1481,3 +1481,4 @@ Is there an equivalent to [object.union] in seedwing?
 [enterprise_contract_cli]: https://github.com/hacbs-contract/ec-cli
 [test_runner]: https://github.com/open-policy-agent/conftest/blob/master/runner/verify.go#L17
 [run]: https://github.com/open-policy-agent/conftest/blob/3392e219c86c0d06f116dee54bcf475561b424ff/runner/verify.go#L35
+[conftest]: https://www.conftest.dev/install/
