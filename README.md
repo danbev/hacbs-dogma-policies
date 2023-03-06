@@ -228,10 +228,6 @@ all (not sure if that is possible though). And this can also make test brittle
 as changing on of `deny` rules in the .rego can cause failures in other tests
 cases. This is something to keep in mind when reading Rego.
 
-
-```
-
-
 Looking at the rest of the rules in required_tasks.rego I can't see anything
 that sticks out what would not be possible to write in Dogma.
 
@@ -395,6 +391,7 @@ data.policy.release.attestation_type.test_deny_when_not_permitted: PASS (1.41006
 data.policy.release.attestation_type.test_deny_when_missing_pipelinerun_attestations: PASS (880.901µs)
 --------------------------------------------------------------------------------
 PASS: 3/3
+```
 
 This .rego file only contains two rules.
 
@@ -1290,27 +1287,6 @@ So the results returned from the `ec` command line tool is a combination or
 the "pure" OPA rule evaluation, and additional metadata which is gathered from
 the metadata of the rule.
 
-If we wanted to implement policies using Seedwing for `ec-cli` we would need
-to have an implementation of `evaluator.Evaluator` which is declared in
-ec-cli/internal/evaluator/evaluator.go.
-```go
-package evaluator
-
-import (
-	"context"
-)
-
-type Evaluator interface {
-	// TODO refactor not to expose Conftest type here
-	Evaluate(ctx context.Context, inputs []string) (CheckResults, error)
-
-	// Destroy performs any cleanup needed
-	Destroy()
-}
-```
-As the TODO mentions this is currently tied to OPA's conftest [CheckResults]
-type. But when this todo is taken care of then it should be possible to
-implement a Seedwing Evalator.
 
 
 <a id="metadata-anchor"></a>
@@ -1398,8 +1374,8 @@ This section list features that exist in HACBS Policy Rules/Rego but are
 currently not available in seedwing-policy-engine/Dogma (as far as I'm aware)
 
 ### HACBS rules custom results
-The rules in HACBS return a result which contains information about the
-success/failure. For example:
+In the [Rule output format](#rule-output-format) section we discussed the output
+format of rules which can look like the following:
 ```console
 {
   "code": "required_tasks.missing_required_task",
@@ -1422,6 +1398,36 @@ Dogma. The error messages are specified as metadata on the rules:
 deny contains result if {
 ```
 This [metadata] was discussed earlier in this document.
+
+
+### Seedwing implementation for HACBS
+If we wanted to implement policies using Seedwing for `ec-cli` we would need
+to have an implementation of `evaluator.Evaluator` which is declared in
+ec-cli/internal/evaluator/evaluator.go.
+```go
+package evaluator
+
+import (
+	"context"
+)
+
+type Evaluator interface {
+	// TODO refactor not to expose Conftest type here
+	Evaluate(ctx context.Context, inputs []string) (CheckResults, error)
+
+	// Destroy performs any cleanup needed
+	Destroy()
+}
+```
+As the TODO mentions this is currently tied to OPA's conftest [CheckResults]
+type. But when this todo is taken care of then it should be possible to
+implement a Seedwing Evaluator. This would be a place where it would be possible
+to gather the "metadata" that HACBS want from the Seedwing Policy Engine
+results.
+
+For some background information about the information in the result output
+please take a look at the [Rule output format](#rule-output-format), and
+the [Enterprise Contract CLI](#enterprise-contract-cli) sections.
 
 
 ### list::count
