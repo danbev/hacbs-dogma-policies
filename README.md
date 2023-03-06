@@ -1286,6 +1286,31 @@ func addMetadataToResults(results []output.Result, rules policyRules) {
 ```
 Here we can see that `Title`, `Description`, and `Collections` are added to
 the result metadata.
+So the results returned from the `ec` command line tool is a combination or
+the "pure" OPA rule evaluation, and additional metadata which is gathered from
+the metadata of the rule.
+
+If we wanted to implement policies using Seedwing for `ec-cli` we would need
+to have an implementation of `evaluator.Evaluator` which is declared in
+ec-cli/internal/evaluator/evaluator.go.
+```go
+package evaluator
+
+import (
+	"context"
+)
+
+type Evaluator interface {
+	// TODO refactor not to expose Conftest type here
+	Evaluate(ctx context.Context, inputs []string) (CheckResults, error)
+
+	// Destroy performs any cleanup needed
+	Destroy()
+}
+```
+As the TODO mentions this is currently tied to OPA's conftest [CheckResults]
+type. But when this todo is taken care of then it should be possible to
+implement a Seedwing Evalator.
 
 
 <a id="metadata-anchor"></a>
@@ -1486,3 +1511,4 @@ Is there an equivalent to [object.union] in seedwing?
 [run]: https://github.com/open-policy-agent/conftest/blob/3392e219c86c0d06f116dee54bcf475561b424ff/runner/verify.go#L35
 [conftest]: https://www.conftest.dev/install/
 [verify-enterprise-task]: https://github.com/hacbs-contract/tekton-catalog/blob/main/tasks/verify-enterprise-contract/0.1/verify-enterprise-contract.yaml
+[checkresults]: https://github.com/open-policy-agent/conftest/blob/3392e219c86c0d06f116dee54bcf475561b424ff/output/result.go#L77
