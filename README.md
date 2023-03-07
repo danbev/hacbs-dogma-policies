@@ -1439,9 +1439,12 @@ example:
 ```
 list::count<anything>
 ```
+Issue: https://github.com/seedwing-io/seedwing-policy/issues/121
 
 ### concat function
 Should seedwing policy engine provide a builtin function similar to [concat]?
+
+Issue: https://github.com/seedwing-io/seedwing-policy/issues/122
 
 ### comprehension
 Is there way to do [comprehension] in seedwing?
