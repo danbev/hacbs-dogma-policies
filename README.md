@@ -1447,7 +1447,7 @@ Should seedwing policy engine provide a builtin function similar to [concat]?
 Issue: https://github.com/seedwing-io/seedwing-policy/issues/122
 
 ### comprehension
-Is there way to do [comprehension] in seedwing?
+Is there way to do [comprehensions] in seedwing?
 
 ### split function
 Is there an equivalent to [split] in seedwing?
