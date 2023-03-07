@@ -1455,6 +1455,8 @@ Is there an equivalent to [split] in seedwing?
 ### contains function
 Is there an equivalent to [contains] in seedwing?
 
+Issue: https://github.com/seedwing-io/seedwing-policy/issues/125
+
 ### array.slice function
 Is there an equivalent to [array.slice] in seedwing?
 
