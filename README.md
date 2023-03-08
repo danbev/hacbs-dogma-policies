@@ -1452,6 +1452,8 @@ Is there way to do [comprehensions] in seedwing?
 ### split function
 Is there an equivalent to [split] in seedwing?
 
+Issue: https://github.com/seedwing-io/seedwing-policy/issues/128
+
 ### contains function
 Is there an equivalent to [contains] in seedwing?
 
