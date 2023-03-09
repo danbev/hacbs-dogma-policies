@@ -1465,7 +1465,9 @@ Is there an equivalent to [array.slice] in seedwing?
 Issue: https://github.com/seedwing-io/seedwing-policy/issues/130
 
 ### array.concat function
-Is there an equivalent to [array.concat] in seedwing?
+Is there an equivalent to [array.concat] in seedwing?  
+
+Issue: https://github.com/seedwing-io/seedwing-policy/issues/133
 
 ### object.remove function
 Is there an equivalent to [object.remove] in seedwing?
