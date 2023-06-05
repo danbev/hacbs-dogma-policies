@@ -1403,7 +1403,7 @@ This [metadata] was discussed earlier in this document.
 ### Seedwing implementation for HACBS
 If we wanted to implement policies using Seedwing for `ec-cli` we would need
 to have an implementation of `evaluator.Evaluator` which is declared in
-ec-cli/internal/evaluator/evaluator.go.
+[ec-cli/internal/evaluator/evaluator.go](https://github.com/enterprise-contract/ec-cli/blob/main/internal/evaluator/evaluator.go#L24).
 ```go
 package evaluator
 
