@@ -222,11 +222,11 @@ By just looking at the rule above I was not able to tell which rule this tests
 was executing. I actually had to put a print statement into the rule to verify
 which one rule it was running. But if I had looked closer the rule is `deny` so
 all the rules with the name `deny` will be evaulated. This might just be my
-own lack of knowledge of Rego but it would have been nice to named the rules
+own lack of knowledge of Rego but it would have been nice to name the rules
 after what they are checking for, and then have a composite rule that checked
-all (not sure if that is possible though). And this can also make test brittle
-as changing on of `deny` rules in the .rego can cause failures in other tests
-cases. This is something to keep in mind when reading Rego.
+all (not sure if that is possible though). And this can also make tests brittle
+as changing one the of `deny` rules in the .rego can cause failures in other
+tests cases. This is something to keep in mind when reading Rego.
 
 Looking at the rest of the rules in required_tasks.rego I can't see anything
 that sticks out what would not be possible to write in Dogma.
