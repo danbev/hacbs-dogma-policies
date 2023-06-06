@@ -430,7 +430,7 @@ deny contains result if {
 }
 ```
 `count` is used in a number of rules. In this case I think that the
-seedwing-policy builtin function `list::none<type> could be used. There
+seedwing-policy builtin function `list::none<type>` could be used. There
 are other builtin functions for [list](https://playground.seedwing.io/policy/list/):
 * all
 * any
